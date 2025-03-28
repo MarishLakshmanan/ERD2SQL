@@ -1,1 +1,31 @@
-dbms/.env
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Don't expose API key for Firebase to repo
+dbms/functions/.env
+
+# Firebase shit because why the hell is it creating its own gitignore files
+dbms/functions/node_modules/
+dbms/functions/*.local
