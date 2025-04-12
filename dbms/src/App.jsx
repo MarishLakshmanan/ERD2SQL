@@ -1,17 +1,17 @@
+// src/App.jsx
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
+import DndBoard from "./Components/DndBoard";
 
-import './App.css'
-import DndBoard from './Components/DndBoard'
-
-function App() {
-
-
+export default function App() {
   return (
-    <>
-    <div className='text-amber-300'>
-    <DndBoard />
-    </div>
-    </>
-  )
+    <Router>
+      <Routes>
+        <Route path="/" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/editor" element={<DndBoard />} />
+      </Routes>
+    </Router>
+  );
 }
-
-export default App
