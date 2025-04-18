@@ -6,6 +6,7 @@ Follow the steps below to run your own instance of the app locally.
 
 1. Clone/fork/download the repository and navigate to the root directory.
 2. Navigate to `dbms-python` in your CLI and run `chmod +x run.sh`
+3. Enter `./run.sh` into your command line and navigate to the indicated URL to run the application.
 
 ## Summary of Existing Endpoints
 ### Authentication Not Required
