@@ -3,8 +3,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import cx_Oracle
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 app.secret_key = 'supersecretkey'
 
 # Local user database for authentication (SQLite)
@@ -73,13 +75,14 @@ def get_oracle_data():
         return jsonify({"error": str(e)}), 500
     
 @app.route('/api/create-diagram', methods=['POST'])
-@login_required
+# @login_required
 def add_employee():
     # data = request.get_json()
 
     # name = data.get('name')
     # position = data.get('position')
     # salary = data.get('salary')
+
     name = request.form['name']
     position = request.form['position']
     salary = request.form['salary']

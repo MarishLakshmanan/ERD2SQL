@@ -1,8 +1,7 @@
-import { Box, Button } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import {
   Background,
   Controls,
-  MarkerType,
   ReactFlow,
   addEdge,
   applyEdgeChanges,
@@ -22,6 +21,7 @@ import { mock } from "../util/classes/mock";
 import EntityClass from "../util/classes/entity";
 import { RelationClass } from "../util/classes/relation";
 import AttributeClass from "../util/classes/attribute";
+import SaveIcon from "@mui/icons-material/Save";
 
 const nodeTypes = {
   relation: Relation,
@@ -33,12 +33,12 @@ const edgeTypes = {
   customEdge: CustomEdge,
 };
 
-const initialNodes = mock.nodes
+const initialNodes = mock.nodes;
 
-const initialEdges = mock.edges
+const initialEdges = mock.edges;
 
 const getType = (handle) => {
-  let source
+  let source;
   switch (handle[0]) {
     case "a":
       source = "attribute";
@@ -49,50 +49,60 @@ const getType = (handle) => {
     case "e":
       source = "entity";
   }
-  return source
+  return source;
+};
+
+const generatEdge = (source_id, target_id, sourceHandle, targetHandle) => {
+  let source = getType(sourceHandle);
+  let target = getType(targetHandle);
+  const edge = {
+    id: `${source_id}-${target_id}`,
+    source: source_id,
+    target: target_id,
+    data: { source: source, target: target, relation: "Many-to-Many" },
+    type: "customEdge",
+    style: { strokeWidth: 2 },
+    markerEnd: {},
+    sourceHandle: sourceHandle,
+    targetHandle: targetHandle,
+  };
+  return edge;
+};
+
+const generateNode = (id, data, type) => {
+  const node = {
+    id: id,
+    data: { label: data, type: "Normal" },
+    type: type,
+    position: { x: 0, y: 0 },
+  };
+  console.log(node);
+  return node;
+};
+
+function generateEntityObject(node) {
+  const entity = new EntityClass(node.id, node.data.label, node.data.type);
+  return entity;
 }
 
-const generatEdge = 
-  (source_id, target_id, sourceHandle, targetHandle) => {
-    let source = getType(sourceHandle)
-    let target = getType(targetHandle)
-    const edge = {
-      id: `${source_id}-${target_id}`,
-      source: source_id,
-      target: target_id,
-      data: { source: source, target: target, relation:"Many-to-Many" },
-      type: "customEdge",
-      style:{strokeWidth:2},
-      markerEnd:{},
-      sourceHandle:sourceHandle,
-      targetHandle:targetHandle
-    };
-    return edge;
-  };
+function generatRelationObject(node) {
+  const relation = new RelationClass(node.id, node.data.label, node.data.type);
+  return relation;
+}
+function generatAttributeObject(node) {
+  const attribute = new AttributeClass(
+    node.id,
+    node.data.label,
+    node.data.type
+  );
+  return attribute;
+}
 
-  const generateNode = (id, data, type) => {
-    const node = {
-      id: id,
-      data: { label: data, type:"Normal" },
-      type: type,
-      position: { x: 0, y: 0 },
-    };
-    console.log(node);
-    return node;
-  };
-
-
-
-const ERD = () => {
+const ERD = ({id}) => {
   // const initialEdges = [];
   // const initialNodes = [];
 
-
-
-  
-
-  
-  const [nodes, setNodes] = useState(initialNodes)
+  const [nodes, setNodes] = useState(initialNodes);
   const [edges, setEdges] = useState(initialEdges);
   const [modal, setModal] = useState(false);
   const [label, setLabel] = useState("");
@@ -100,11 +110,6 @@ const ERD = () => {
   const [alert, setAlert] = useState(false);
   const [alertMsg, setAlertMsg] = useState("");
   const [severity, setSeverity] = useState("");
-  
-  
-
-  
-  
 
   const addNodes = useCallback((id, label, type) => {
     const node = generateNode(id, label, type);
@@ -142,12 +147,20 @@ const ERD = () => {
   );
 
   const onConnect = useCallback((params) => {
-    let edge = params
-    if(params.sourceHandle[0]!=="a"){
-      edge = generatEdge(params.source,params.target,params.sourceHandle,params.targetHandle)
-    }else{
+    let edge = params;
+    if (params.sourceHandle[0] !== "a") {
+      edge = generatEdge(
+        params.source,
+        params.target,
+        params.sourceHandle,
+        params.targetHandle
+      );
+    } else {
       console.log(edge);
-      edge.data = {source:getType(params.sourceHandle),target:getType(params.targetHandle)}
+      edge.data = {
+        source: getType(params.sourceHandle),
+        target: getType(params.targetHandle),
+      };
     }
     setEdges((eds) => addEdge(edge, eds));
   }, []);
@@ -164,104 +177,135 @@ const ERD = () => {
     // addNodes(id, pk, "attribute");
   }, []);
 
-  const addAttributes = useCallback( (name) => {
+  const addAttributes = useCallback((name) => {
     let id = uuidv4();
     addNodes(id, name, "attribute");
   });
+  const handleGenerate = useCallback(() => {
+    console.log(nodes.length, edges.length);
 
+    const Entities = {};
+    const Relations = {};
+    const Attributes = {};
 
-  function generateEntityObject(node){
-    const entity = new EntityClass(node.id,node.data.label,node.data.type)
-    return entity
-  }
+    nodes.forEach((node) => {
+      if (node.type === "entity")
+        Entities[node.id] = generateEntityObject(node);
+      if (node.type === "relation")
+        Relations[node.id] = generatRelationObject(node);
+      if (node.type === "attribute")
+        Attributes[node.id] = generatAttributeObject(node);
+    });
 
-  function generatRelationObject(node){
-    const relation = new RelationClass(node.id,node.data.label,node.data.type)
-    return relation
-  }
-  function generatAttributeObject(node){
-    const attribute = new AttributeClass(node.id,node.data.label,node.data.type)
-    return attribute
-  }
-
-  const handleGenerate = useCallback(()=>{
-
-    console.log(nodes.length,edges.length);
-    
-    
-    const Entities = {}
-    const Relations = {}
-    const Attributes = {}
-
-    nodes.forEach((node)=>{
-      if(node.type === "entity") Entities[node.id] = generateEntityObject(node)
-      if(node.type === "relation") Relations[node.id] = generatRelationObject(node)
-      if(node.type === "attribute") Attributes[node.id] = generatAttributeObject(node)
-    })
-    
-    
-    for(const edge of edges){
-      const source = edge.data.source
-      const target = edge.data.target
+    for (const edge of edges) {
+      const source = edge.data.source;
+      const target = edge.data.target;
       // console.log(`${source} => ${target}`);
-      if(source == "attribute" && target == "entity"){
-        if(Attributes[edge.source].type == "Primary-Key"){
-          if(!Entities[edge.target].primary_key){
-            Entities[edge.target].primary_key = edge.source
-          }else{
-            console.error("More than one primary key not allowed for an Entity");
-            triggerAlert("warning","More than one primary key not allowed for an Entity")
-            return
+      if (source == "attribute" && target == "entity") {
+        if (Attributes[edge.source].type == "Primary-Key") {
+          if (!Entities[edge.target].primary_key) {
+            Entities[edge.target].primary_key = edge.source;
+          } else {
+            console.error(
+              "More than one primary key not allowed for an Entity"
+            );
+            triggerAlert(
+              "warning",
+              "More than one primary key not allowed for an Entity"
+            );
+            return;
           }
-          
         }
-        Entities[edge.target].attr.push(Attributes[edge.source])
+        Entities[edge.target].attr.push(Attributes[edge.source]);
       }
-      if(source == "attribute" && target == "relation"){
-        Relations[edge.target].attr.push(Attributes[edge.source])
+      if (source == "attribute" && target == "relation") {
+        Relations[edge.target].attr.push(Attributes[edge.source]);
       }
-      if(source == "entity" && target == "relation"){   
-        let relations  = {source:edge.source,target:edge.target,relation:edge.data.relation}
-        if( Relations[edge.target].relation.length < 2 ){
-          Relations[edge.target].relation.push(relations)
-        }else{
+      if (source == "entity" && target == "relation") {
+        let relations = {
+          source: edge.source,
+          target: edge.target,
+          relation: edge.data.relation,
+        };
+        if (Relations[edge.target].relation.length < 2) {
+          Relations[edge.target].relation.push(relations);
+        } else {
           console.error("A Relation can have only two Entities related to it");
-          triggerAlert("warning","A Relation can have only two Entities related to it")
-          return
+          triggerAlert(
+            "warning",
+            "A Relation can have only two Entities related to it"
+          );
+          return;
         }
-        let temp  = {...Relations[edge.target],relation:edge.data.relation}
-        Entities[edge.source].relations.push(temp)
+        let temp = { ...Relations[edge.target], relation: edge.data.relation };
+        Entities[edge.source].relations.push(temp);
       }
     }
 
-    let temp  = Object.values(Relations)
-    for (const x of temp){
-      if(x.relation.length != 2){
-        triggerAlert("error","A relation should have two Entities connected to it")
+    let temp = Object.values(Relations);
+    for (const x of temp) {
+      if (x.relation.length != 2) {
+        triggerAlert(
+          "error",
+          "A relation should have two Entities connected to it"
+        );
         console.error("A relation should have two Entities connected to it");
-        return
+        return;
       }
     }
 
-    if(edges.length != (nodes.length-1)){
-      triggerAlert("error","There's some unconnected node in your diagram, Please make sure everything is connected")
-      console.error("There's some unconnected node in your diagram, Please make sure everything is connected");
-      return
+    if (edges.length != nodes.length - 1) {
+      triggerAlert(
+        "error",
+        "There's some unconnected node in your diagram, Please make sure everything is connected"
+      );
+      console.error(
+        "There's some unconnected node in your diagram, Please make sure everything is connected"
+      );
+      return;
     }
 
     console.log(Entities);
     console.log(Relations);
-    
-    
-    
+  }, [nodes, edges]);
 
-  },[nodes,edges])
+  const handleSave = useCallback(() => {
+    const url = "http://127.0.0.1:5000/api/create-diagram";
+    const data = {
+      id:(id) ? id : uuidv4(),
+      nodes: nodes,
+      edges: edges,
+    };
+
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    };
+    console.log(data);
+    // fetch(url, options)
+    //   .then((response) => {
+    //     if (!response.ok) {
+    //       throw new Error(`HTTP error! status: ${response.status}`);
+    //     }
+    //     return response.json();
+    //   })
+    //   .then((responseData) => {
+    //     console.log("Success:", responseData);
+    //     triggerAlert("success","ERD Diagram Saved")
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error:", error);
+    //   });
+  });
 
   return (
     <Box className="w-full h-screen grid grid-cols-[350px_1fr] bg-brand-light">
       <Box className="border flex flex-col justify-center items-stretch gap-2 p-2">
         <Button
-        variant="outlined"
+          variant="outlined"
           onClick={() => {
             triggerModal("Relation", addRelations);
           }}
@@ -287,15 +331,12 @@ const ERD = () => {
           {" "}
           Add Attribute{" "}
         </Button>
-        <Button
-         onClick={handleGenerate}
-          variant="contained"
-        >
+        <Button onClick={handleGenerate} variant="contained">
           {" "}
           Generate{" "}
         </Button>
       </Box>
-      <Box className="border w-full h-full">
+      <Box className="border w-full h-full relative">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -308,6 +349,18 @@ const ERD = () => {
           <Background bgColor="#F9FFE9" />
           <Controls />
         </ReactFlow>
+        <Button
+          sx={{ position: "absolute" }}
+          className="top-[10px] right-[10px] z-100"
+          onClick={handleSave}
+          variant="contained"
+          endIcon={<SaveIcon />}
+        >
+          <Typography variant="body1" sx={{ color: "white" }}>
+            {" "}
+            Save{" "}
+          </Typography>
+        </Button>
       </Box>
       <CustomDailog
         triggerAlert={triggerAlert}

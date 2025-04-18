@@ -7,7 +7,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <Box className="w-full h-screen ">
-        <ERD />
+        <ERD/>
       </Box>
     </ThemeProvider>
   );
