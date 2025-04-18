@@ -98,12 +98,12 @@ function generatAttributeObject(node) {
   return attribute;
 }
 
-const ERD = ({id}) => {
+const ERD = ({id,savedNodes,savedEdges}) => {
   // const initialEdges = [];
   // const initialNodes = [];
 
-  const [nodes, setNodes] = useState(initialNodes);
-  const [edges, setEdges] = useState(initialEdges);
+  const [nodes, setNodes] = useState((savedNodes)?savedNodes : initialNodes);
+  const [edges, setEdges] = useState((savedEdges)?savedEdges: initialEdges);
   const [modal, setModal] = useState(false);
   const [label, setLabel] = useState("");
   const [cb, setCallback] = useState();

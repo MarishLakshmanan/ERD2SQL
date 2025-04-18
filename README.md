@@ -1,4 +1,106 @@
-# ERD-to-SQL Converter
+# How to Use the ERD Interface
+
+The ERD Interface is very simple and follows the notation taught in the **CS542** class at **WPI**. You can create **Attributes**, **Entities**, and **Relations** using the buttons, and connect them by **dragging edges (handles)** between the nodes.
+
+You can delete a connection or a node by selecting it and simply pressing **Backspace**.
+
+---
+
+### What Happens When You Hit "Generate"?
+
+When you click the **Generate** button, after performing basic validation, it returns the class objects of **Entities** and **Relations** as two separate objects.
+
+The **Entity** objects contain:
+- `name`
+- `primary_key`
+- All associated **attributes** (with types: PK, CK, Normal)
+- All connected **relations** (e.g., Many-to-Many, One-to-Many, etc.)
+
+---
+
+### How to Load Saved ERDs
+
+To load a saved ERD, pass the `id`, `savedNodes`, and `savedEdges` as props to the `ERD` component:
+
+```jsx
+<ERD id={"id"} savedNodes={[]} savedEdges={[]} />
+```
+
+To start fresh with a new diagram:
+
+```jsx
+<ERD />
+```
+
+Depending on whether you pass an ID or not, the component will automatically **create** or **update** the diagram.
+
+---
+
+### Raw Nodes and Edges Format for Saving
+
+If you load the homepage right now, it displays a mock diagram. The data for that diagram is in the `mock.js` file.
+
+⚠️ **Important:** When saving or loading, your `nodes` and `edges` must follow this format — not the custom class structure we created for logic.
+
+---
+
+#### 🗭 Node Format
+
+```json
+nodes: [
+  {
+    "id": "233f3d48-9198-41ce-9f42-4deb818043d3",
+    "data": {
+      "label": "department",
+      "type": "Weak"
+    },
+    "type": "entity",
+    "position": {
+      "x": 389.97828486958934,
+      "y": 247.4318702193848
+    },
+    "measured": {
+      "width": 216,
+      "height": 60
+    },
+    "selected": false,
+    "dragging": false
+  }
+]
+```
+
+---
+
+#### 🗾 Edge Format
+
+```json
+edges: [
+  {
+    "id": "233f3d48-9198-41ce-9f42-4deb818043d3-517a3c46-b3a9-4f4f-a0cd-529dac07b5b3",
+    "source": "233f3d48-9198-41ce-9f42-4deb818043d3",
+    "target": "517a3c46-b3a9-4f4f-a0cd-529dac07b5b3",
+    "data": {
+      "source": "entity",
+      "target": "relation",
+      "relation": "Many-to-Many"
+    },
+    "type": "customEdge",
+    "style": {
+      "strokeWidth": 2
+    },
+    "markerEnd": {
+      "type": "arrowclosed"
+    },
+    "sourceHandle": "e-b",
+    "targetHandle": "r-c",
+    "selected": false
+  }
+]
+```
+
+
+
+# ERD-to-SQL Converter Backend
 This is a simple, one-page app that integrates a React frontend with a Python backend using Flask for middleware, Oracle SQL for ERD functionality, and SQLLite for authentication.
 For the purposes of this application, only the contents of `dbms-python` are relevant - the `dbms` folder should be regarded only as a reference point for our legacy backend structure.
 

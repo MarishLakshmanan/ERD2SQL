@@ -7,7 +7,12 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <Box className="w-full h-screen ">
-        <ERD/>
+        {/* To Create a New Diagram */}
+      <ERD/> 
+
+        {/* To Load a saved Diagram pass the array to savedNodes and savedEdges
+        <ERD id={"asd"} savedNodes={[]} savedEdges={[]}/> 
+        */}
       </Box>
     </ThemeProvider>
   );
