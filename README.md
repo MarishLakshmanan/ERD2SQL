@@ -10,11 +10,24 @@ You can delete a connection or a node by selecting it and simply pressing **Back
 
 When you click the **Generate** button, after performing basic validation, it returns the class objects of **Entities** and **Relations** as two separate objects.
 
-The **Entity** objects contain:
+#### 🔢 Entity Object Structure
+
+Each **Entity** object contains:
+- `id`
 - `name`
-- `primary_key`
-- All associated **attributes** (with types: PK, CK, Normal)
-- All connected **relations** (e.g., Many-to-Many, One-to-Many, etc.)
+- `attr`: an array of attributes
+- `primary_key`: the primary key attribute ID
+- `relations`: an array of relation references
+- `type`: the type of entity (e.g., Normal, Weak)
+
+#### 🔢 Relation Object Structure
+
+Each **Relation** object contains:
+- `id`
+- `name`
+- `attr`: an array of attributes
+- `relation`: an array describing the constraint types (e.g., Many-to-Many, One-to-Many)
+- `type`: the type of the relation (e.g., Normal, Weak)
 
 ---
 
