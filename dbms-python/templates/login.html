@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ERD-to-SQL | Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary-bg: #0d0d0d;
+      --secondary-bg: #1a1a1a;
+      --primary-text: #f5f5f5;
+      --accent: #007acc;
+      --accent-hover: #005f99;
+      --input-bg: #262626;
+      --input-border: #333333;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--primary-bg);
+      color: var(--primary-text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      overflow: hidden;
+    }
+    
+    /* Fullscreen canvas background */
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+    
+    h1 {
+      margin-bottom: 20px;
+      color: var(--accent);
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 400px;
+      background-color: var(--secondary-bg);
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      z-index: 1; /* Ensures content appears above background */
+    }
+    
+    h2 {
+      margin: 20px 0 10px;
+      font-size: 1.2em;
+      color: var(--accent);
+    }
+    
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      background-color: var(--input-bg);
+      color: var(--primary-text);
+    }
+    
+    button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 4px;
+      background-color: var(--accent);
+      color: var(--primary-bg);
+      font-size: 1em;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    
+    button:hover {
+      background-color: var(--accent-hover);
+    }
+    
+    #user-info {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg-canvas"></canvas>
+  <h1>ERD-to-SQL Converter</h1>
+  <div class="container">
+    <h2>Login</h2>
+    <form method="POST">
+      <input type="text" name="email" placeholder="Email" required /><br>
+      <input type="password" name="password" placeholder="Password" required /><br>
+      <button type="submit">Login</button>
+    </form>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+          {% for message in messages %}
+            <li style="color:red;">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+  </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const canvas = document.getElementById('bg-canvas');
+      const ctx = canvas.getContext('2d');
+
+      // *** CUSTOMIZATION PARAMETERS ***
+      // Increase these values to cover a larger area
+      const WAVE_COLS = 80;    // Originally 50; more columns = wider grid
+      const WAVE_ROWS = 80;    // Originally 50; more rows = taller grid
+      const SPACING = 6;       // Originally 4; larger spacing scales up the grid
+
+      // Wave and visual settings
+      const AMPLITUDE = 6;     // Wave height remains the same for subtle motion
+      const FREQUENCY = 0.8;   // Wave frequency
+      const SPEED = 0.6;       // Speed multiplier for wave movement
+      const LINE_COLOR = "rgba(0, 122, 204, 0.2)";
+      const LINE_WIDTH = 1;
+
+      // *** CAMERA SETTINGS (controls position/scale of the wireframe) ***
+      // Modify these to pan or zoom the grid on the canvas.
+      const CAMERA = { 
+        x: 0,    // Shift left/right by modifying x
+        y: 20,   // Vertical shift by modifying y
+        z: 90   // Change z to zoom in/out; smaller values zoom in, larger zoom out
+      };
+      const FOCAL_LENGTH = 250; // Adjust to change perspective scaling
+
+      // Resize the canvas to fill the window
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+
+      // Convert 3D coordinates to 2D screen coordinates
+      function project3DTo2D(x3D, y3D, z3D) {
+        // Shift relative to camera
+        const xRel = x3D - CAMERA.x;
+        const yRel = y3D - CAMERA.y;
+        const zRel = z3D - CAMERA.z;
+
+        // Avoid division by zero
+        if (zRel === 0) return { x: 0, y: 0, behindCamera: true };
+
+        // If behind camera, skip drawing
+        const behindCamera = (zRel > 0);
+
+        // Basic perspective projection
+        const scale = FOCAL_LENGTH / -zRel;
+        const x2D = canvas.width / 2 + xRel * scale;
+        const y2D = canvas.height / 2 + yRel * scale;
+
+        return { x: x2D, y: y2D, behindCamera };
+      }
+
+      function animate(time) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const t = time * 0.001 * SPEED;
+
+        // Precompute 2D coordinates for each grid point
+        const points2D = [];
+        for (let row = 0; row <= WAVE_ROWS; row++) {
+          const tempRow = [];
+          for (let col = 0; col <= WAVE_COLS; col++) {
+            // Map grid to world space (x, z) and center around (0,0)
+            const x3D = (col - WAVE_COLS / 2) * SPACING;
+            const z3D = (row - WAVE_ROWS / 2) * SPACING;
+
+            // Wave function for y3D based on grid coordinates and time
+            const waveHeight = AMPLITUDE * Math.sin(FREQUENCY * (x3D + z3D) * 0.1 + t);
+            const y3D = waveHeight;
+
+            // Project 3D point to 2D screen space
+            const projected = project3DTo2D(x3D, y3D, z3D);
+            tempRow.push(projected);
+          }
+          points2D.push(tempRow);
+        }
+
+        // Draw the wireframe by connecting adjacent grid points
+        ctx.strokeStyle = LINE_COLOR;
+        ctx.lineWidth = LINE_WIDTH;
+        for (let row = 0; row < WAVE_ROWS; row++) {
+          for (let col = 0; col < WAVE_COLS; col++) {
+            const current = points2D[row][col];
+            const right = points2D[row][col + 1];
+            const down  = points2D[row + 1][col];
+
+            // Draw horizontal segment if visible
+            if (!current.behindCamera && !right.behindCamera) {
+              ctx.beginPath();
+              ctx.moveTo(current.x, current.y);
+              ctx.lineTo(right.x, right.y);
+              ctx.stroke();
+            }
+
+            // Draw vertical segment if visible
+            if (!current.behindCamera && !down.behindCamera) {
+              ctx.beginPath();
+              ctx.moveTo(current.x, current.y);
+              ctx.lineTo(down.x, down.y);
+              ctx.stroke();
+            }
+          }
+        }
+
+        requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+    });
+  </script>
+</body>
+</html>
