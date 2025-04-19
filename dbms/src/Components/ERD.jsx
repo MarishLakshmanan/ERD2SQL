@@ -350,7 +350,7 @@ const ERD = ({id,savedNodes,savedEdges}) => {
           </Typography>
         </Button>
       </Box>
-      <CustomDailog
+      <CustomDialog
         triggerAlert={triggerAlert}
         label={label}
         isOpen={modal}
