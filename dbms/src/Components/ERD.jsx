@@ -1,25 +1,17 @@
-import { Box, Button, Typography } from "@mui/material";
-import {
-  Background,
-  Controls,
-  ReactFlow,
-  addEdge,
-  applyEdgeChanges,
-  applyNodeChanges,
-} from "@xyflow/react";
+import {Box, Button, Typography} from "@mui/material";
+import {addEdge, applyEdgeChanges, applyNodeChanges, Background, Controls, ReactFlow,} from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useState, useCallback } from "react";
-import React from "react";
-import { Relation } from "./Relation";
-import { v4 as uuidv4 } from "uuid";
+import React, {useCallback, useState} from "react";
+import {Relation} from "./Relation";
+import {v4 as uuidv4} from "uuid";
 import Entity from "./Entity";
 import Attribute from "./Attribute";
-import CustomDailog from "./CustomDialog";
+import CustomDialog from "./CustomDialog";
 import CustomAlert from "./CustomAlert";
 import CustomEdge from "./CustomEdge";
-import { mock } from "../util/classes/mock";
+import {mock} from "../util/classes/mock";
 import EntityClass from "../util/classes/entity";
-import { RelationClass } from "../util/classes/relation";
+import {RelationClass} from "../util/classes/relation";
 import AttributeClass from "../util/classes/attribute";
 import SaveIcon from "@mui/icons-material/Save";
 
@@ -52,21 +44,20 @@ const getType = (handle) => {
   return source;
 };
 
-const generatEdge = (source_id, target_id, sourceHandle, targetHandle) => {
+const generateEdge = (source_id, target_id, sourceHandle, targetHandle) => {
   let source = getType(sourceHandle);
   let target = getType(targetHandle);
-  const edge = {
+  return {
     id: `${source_id}-${target_id}`,
     source: source_id,
     target: target_id,
-    data: { source: source, target: target, relation: "Many-to-Many" },
+    data: {source: source, target: target, relation: "Many-to-Many"},
     type: "customEdge",
-    style: { strokeWidth: 2 },
+    style: {strokeWidth: 2},
     markerEnd: {},
     sourceHandle: sourceHandle,
     targetHandle: targetHandle,
   };
-  return edge;
 };
 
 const generateNode = (id, data, type) => {
@@ -81,21 +72,18 @@ const generateNode = (id, data, type) => {
 };
 
 function generateEntityObject(node) {
-  const entity = new EntityClass(node.id, node.data.label, node.data.type);
-  return entity;
+  return new EntityClass(node.id, node.data.label, node.data.type);
 }
 
-function generatRelationObject(node) {
-  const relation = new RelationClass(node.id, node.data.label, node.data.type);
-  return relation;
+function generateRelationObject(node) {
+  return new RelationClass(node.id, node.data.label, node.data.type);
 }
-function generatAttributeObject(node) {
-  const attribute = new AttributeClass(
-    node.id,
-    node.data.label,
-    node.data.type
+function generateAttributeObject(node) {
+  return new AttributeClass(
+      node.id,
+      node.data.label,
+      node.data.type
   );
-  return attribute;
 }
 
 const ERD = ({id,savedNodes,savedEdges}) => {
@@ -149,7 +137,7 @@ const ERD = ({id,savedNodes,savedEdges}) => {
   const onConnect = useCallback((params) => {
     let edge = params;
     if (params.sourceHandle[0] !== "a") {
-      edge = generatEdge(
+      edge = generateEdge(
         params.source,
         params.target,
         params.sourceHandle,
@@ -192,17 +180,17 @@ const ERD = ({id,savedNodes,savedEdges}) => {
       if (node.type === "entity")
         Entities[node.id] = generateEntityObject(node);
       if (node.type === "relation")
-        Relations[node.id] = generatRelationObject(node);
+        Relations[node.id] = generateRelationObject(node);
       if (node.type === "attribute")
-        Attributes[node.id] = generatAttributeObject(node);
+        Attributes[node.id] = generateAttributeObject(node);
     });
 
     for (const edge of edges) {
       const source = edge.data.source;
       const target = edge.data.target;
       // console.log(`${source} => ${target}`);
-      if (source == "attribute" && target == "entity") {
-        if (Attributes[edge.source].type == "Primary-Key") {
+      if (source === "attribute" && target === "entity") {
+        if (Attributes[edge.source].type === "Primary-Key") {
           if (!Entities[edge.target].primary_key) {
             Entities[edge.target].primary_key = edge.source;
           } else {
@@ -218,10 +206,10 @@ const ERD = ({id,savedNodes,savedEdges}) => {
         }
         Entities[edge.target].attr.push(Attributes[edge.source]);
       }
-      if (source == "attribute" && target == "relation") {
+      if (source === "attribute" && target === "relation") {
         Relations[edge.target].attr.push(Attributes[edge.source]);
       }
-      if (source == "entity" && target == "relation") {
+      if (source === "entity" && target === "relation") {
         let relations = {
           source: edge.source,
           target: edge.target,
@@ -244,7 +232,7 @@ const ERD = ({id,savedNodes,savedEdges}) => {
 
     let temp = Object.values(Relations);
     for (const x of temp) {
-      if (x.relation.length != 2) {
+      if (x.relation.length !== 2) {
         triggerAlert(
           "error",
           "A relation should have two Entities connected to it"
@@ -254,7 +242,7 @@ const ERD = ({id,savedNodes,savedEdges}) => {
       }
     }
 
-    if (edges.length != nodes.length - 1) {
+    if (edges.length !== nodes.length - 1) {
       triggerAlert(
         "error",
         "There's some unconnected node in your diagram, Please make sure everything is connected"

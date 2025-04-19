@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import React, { useEffect, useRef } from "react";
 
-const CustomDailog = ({ triggerAlert,label, isOpen, setOpen, cb }) => {
+const CustomDialog = ({ triggerAlert,label, isOpen, setOpen, cb }) => {
   const inputRef = useRef(null)
   function handleSubmit(e) {
     const target = document.getElementById("modal-name-input");
@@ -45,7 +45,7 @@ const CustomDailog = ({ triggerAlert,label, isOpen, setOpen, cb }) => {
   },[isOpen])
 
   function handleKeyDown (e){
-    if(e.key == "Enter"){
+    if(e.key === "Enter"){
       handleSubmit()
     }
     
@@ -86,4 +86,4 @@ const CustomDailog = ({ triggerAlert,label, isOpen, setOpen, cb }) => {
   );
 };
 
-export default CustomDailog;
+export default CustomDialog;

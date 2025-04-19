@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-import cx_Oracle
+import oracledb
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -16,7 +16,7 @@ db = SQLAlchemy(app)
 # Oracle DB connection
 ORACLE_USER = "mamcinerney"
 ORACLE_PASS = "MAMCINERNEY"
-ORACLE_DSN = cx_Oracle.makedsn("oracle.wpi.edu", 1521, sid="ORCL")
+ORACLE_DSN = oracledb.makedsn("oracle.wpi.edu", 1521, sid="ORCL")
 
 # Setup Flask-Login
 login_manager = LoginManager()
@@ -64,7 +64,7 @@ def dashboard():
 @login_required
 def get_oracle_data():
     try:
-        conn = cx_Oracle.connect(user=ORACLE_USER, password=ORACLE_PASS, dsn=ORACLE_DSN)
+        conn = oracledb.connect(user=ORACLE_USER, password=ORACLE_PASS, dsn=ORACLE_DSN)
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM EMPLOYEES")  # Replace with your actual query
         results = cursor.fetchall()
@@ -91,7 +91,7 @@ def add_employee():
         return jsonify({'error': 'Missing fields'}), 400
 
     try:
-        conn = cx_Oracle.connect(user=ORACLE_USER, password=ORACLE_PASS, dsn=ORACLE_DSN)
+        conn = oracledb.connect(user=ORACLE_USER, password=ORACLE_PASS, dsn=ORACLE_DSN)
         cursor = conn.cursor()
         cursor.execute("""
             INSERT INTO EMPLOYEES (name, position, salary)
