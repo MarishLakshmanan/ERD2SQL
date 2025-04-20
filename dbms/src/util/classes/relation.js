@@ -12,39 +12,39 @@ class RelationClass{
         
     }
 
-    pushAttr(attr){
-        this.attr.push(attr)
-    }
-
-     // Getter for id
-  get id() {
-    return this._id;
-  }
-
-  // Getter for name
-  get name() {
-    return this._name;
-  }
-
-  // Setter for name
-  set name(newName) {
-    this._name = newName;
-  }
-
-  // Getter for attr
-  get attr() {
-    return this._attr;
-  }
-
-  // Setter for attr
-  set attr(newattr) {
-    this._attr = newattr;
-  }
-
-  get type(){
-    return this.type
-  }
+  //   pushAttr(attr){
+  //       this.attr.push(attr)
+  //   }
+  //
+  //    // Getter for id
+  // get id() {
+  //   return this.id;
+  // }
+  //
+  // // Getter for name
+  // get name() {
+  //   return this.name;
+  // }
+  //
+  // // Setter for name
+  // set name(newName) {
+  //   this.name = newName;
+  // }
+  //
+  // // Getter for attr
+  // get attr() {
+  //   return this.attr;
+  // }
+  //
+  // // Setter for attr
+  // set attr(newattr) {
+  //   this.attr = newattr;
+  // }
+  //
+  // get type(){
+  //   return this.type
+  // }
 
 }
 
-export {RelationClass}
+export default RelationClass

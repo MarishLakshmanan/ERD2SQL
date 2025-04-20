@@ -11,7 +11,7 @@ import CustomAlert from "./CustomAlert";
 import CustomEdge from "./CustomEdge";
 import {mock} from "../util/classes/mock";
 import EntityClass from "../util/classes/entity";
-import {RelationClass} from "../util/classes/relation";
+import RelationClass from "../util/classes/relation";
 import AttributeClass from "../util/classes/attribute";
 import SaveIcon from "@mui/icons-material/Save";
 
@@ -245,10 +245,10 @@ const ERD = ({id,savedNodes,savedEdges}) => {
     if (edges.length !== nodes.length - 1) {
       triggerAlert(
         "error",
-        "There's some unconnected node in your diagram, Please make sure everything is connected"
+        "There are unconnected nodes in your diagram, Please make sure everything is connected"
       );
       console.error(
-        "There's some unconnected node in your diagram, Please make sure everything is connected"
+        "There are unconnected nodes in your diagram, Please make sure everything is connected"
       );
       return;
     }

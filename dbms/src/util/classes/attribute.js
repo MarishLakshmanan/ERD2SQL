@@ -11,25 +11,25 @@ class AttributeClass{
         this.type = type
     }
 
-    get id(){
-        return this.id
-    }
-
-    set name(newName){
-        this.name = newName
-    }
-
-    get name() {
-        return this.name
-    }
-
-    set type(newType){
-        this.name = newName
-    }
-
-    get type() {
-        return this.type
-    }
+    // get id(){
+    //     return this.id
+    // }
+    //
+    // set name(newName){
+    //     this.name = newName
+    // }
+    //
+    // get name() {
+    //     return this.name
+    // }
+    //
+    // set type(newType){
+    //     this.type = newType
+    // }
+    //
+    // get type() {
+    //     return this.type
+    // }
 
 }
 
