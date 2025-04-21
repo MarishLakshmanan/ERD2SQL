@@ -55,15 +55,24 @@ def login():
                 'sub': email,
                 'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=24)
             }, "SECRET_KEY", algorithm='HS256')
-            return redirect(url_for('dashboard'))
+            return redirect(f'http://localhost:5173/?token={token}')
         # +f"?token={token}"
         flash("Invalid credentials")
     return render_template('login.html')
 
-@app.route('/create-diagram')
-@login_required
-def diagrammer():
-    return redirect(f'http://localhost:5173/?token={token}')
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    global token
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        if not User.query.filter_by(email=email).first():
+            hashed_pw = generate_password_hash(password, method='pbkdf2:sha256')
+            new_user = User(email=email, password=hashed_pw)
+            db.session.add(new_user)
+            db.session.commit()
+        return f"User created: {email}"
+    return render_template('register.html')
 
 @app.route('/logout')
 @login_required

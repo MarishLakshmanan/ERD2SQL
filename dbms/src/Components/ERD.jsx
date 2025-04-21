@@ -18,7 +18,7 @@ import generateSQL from "../util/converter.js";
 
 // Passage of token from Flask to Node to Oracle
 import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { redirect, useSearchParams } from 'react-router-dom';
 
 const nodeTypes = {
   relation: Relation,
@@ -344,6 +344,10 @@ const ERD = ({id,savedNodes,savedEdges}) => {
         <Button onClick={handleGenerate} variant="contained">
           {" "}
           Generate{" "}
+        </Button>
+        <Button onClick={() => window.location.href = 'http://localhost:5000/logout'} variant="contained">
+          {" "}
+          Log Out{" "}
         </Button>
       </Box>
       <Box className="border w-full h-full relative">
