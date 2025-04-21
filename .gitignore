@@ -29,3 +29,4 @@ dbms/functions/.env
 # Firebase shit because why the hell is it creating its own gitignore files
 dbms/functions/node_modules/
 dbms/functions/*.local
+dbms/notes.txt

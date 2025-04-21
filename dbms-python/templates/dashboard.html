@@ -106,7 +106,7 @@
       <input type="text" name="name" placeholder="Name" required /><br>
       <input type="text" name="position" placeholder="Position" required /><br>
       <input type="text" name="salary" placeholder="Salary" required /><br>
-      <button formaction="/api/create-diagram" type="submit">Create ERD</button>
+      <button id="createDiagram" onclick="window.location.href='/create-diagram'">Create ERD</button>
     </form>
     <button><a href="{{ url_for('logout') }}">Log out</a></button>
     <button onclick="fetchData()">Fetch Oracle Data</button>
@@ -231,5 +231,26 @@
       requestAnimationFrame(animate);
     });
   </script>
+  <!-- <script>
+    document.getElementById('createDiagram').addEventListener('click', () => {
+      fetch('/api/create-diagram', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: 'Hello from the browser button!',
+          timestamp: new Date().toISOString()
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('responseOutput').textContent = JSON.stringify(data, null, 2);
+      })
+      .catch(error => {
+        document.getElementById('responseOutput').textContent = 'Error: ' + error;
+      });
+    });
+  </script> -->
 </body>
 </html>

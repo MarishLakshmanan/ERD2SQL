@@ -1,9 +1,13 @@
+import jwt
+import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import oracledb
 from flask_cors import CORS
+
+token = ""
 
 app = Flask(__name__)
 CORS(app)
@@ -39,15 +43,27 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    global token
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
         user = User.query.filter_by(email=email).first()
         if user and check_password_hash(user.password, password):
             login_user(user)
+            # Generate JWT
+            token = jwt.encode({
+                'sub': email,
+                'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
+            }, "SECRET_KEY", algorithm='HS256')
             return redirect(url_for('dashboard'))
+        # +f"?token={token}"
         flash("Invalid credentials")
     return render_template('login.html')
+
+@app.route('/create-diagram')
+@login_required
+def diagrammer():
+    return redirect(f'http://localhost:5173/?token={token}')
 
 @app.route('/logout')
 @login_required
@@ -66,44 +82,53 @@ def get_oracle_data():
     try:
         conn = oracledb.connect(user=ORACLE_USER, password=ORACLE_PASS, dsn=ORACLE_DSN)
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM EMPLOYEES")  # Replace with your actual query
+        cursor.execute(f"""
+            SELECT * FROM JSON_DATA
+            WHERE USERNAME='{current_user.email}'
+        """)  # Replace with your actual query
         results = cursor.fetchall()
+        print(results)
+        
+        json_data = results[0][1]
+        json_data = json_data.read()
         cursor.close()
         conn.close()
-        return jsonify(results)
+
+        return jsonify(json_data)
     except Exception as e:
+        print(e)
         return jsonify({"error": str(e)}), 500
     
 @app.route('/api/create-diagram', methods=['POST'])
-# @login_required
-def add_employee():
-    # data = request.get_json()
+@login_required
+def create_diagram():
+    data = request.data.decode("utf-8")
+    print(data)
+    print(current_user.email)
 
-    # name = data.get('name')
-    # position = data.get('position')
-    # salary = data.get('salary')
-
-    name = request.form['name']
-    position = request.form['position']
-    salary = request.form['salary']
-
-    if not all([name, position, salary]):
-        return jsonify({'error': 'Missing fields'}), 400
+    if data is None:
+        return jsonify({'error': 'No data has been passed from client'}), 400
 
     try:
         conn = oracledb.connect(user=ORACLE_USER, password=ORACLE_PASS, dsn=ORACLE_DSN)
+        print("Connection with oracle db established.")
         cursor = conn.cursor()
+        print("whatever the hell cursor is.")
         cursor.execute("""
-            INSERT INTO EMPLOYEES (name, position, salary)
-            VALUES (:1, :2, :3)
-        """, (name, position, salary))
+            INSERT INTO JSON_DATA (username, data)
+            VALUES (:username, :data)
+        """, {"username": current_user.email, "data": data})
+        print("insertion query issued.")
         conn.commit()
+        print("effects committed.")
         cursor.close()
         conn.close()
+        print("query handler and connection closed.")
 
-        return jsonify({'message': 'Employee added successfully'}), 201
+        return jsonify({'message': 'Data added successfully'}), 201
 
     except Exception as e:
+        print(e)
         return jsonify({'error': str(e)}), 500
 
 # Simple route to create an initial user
