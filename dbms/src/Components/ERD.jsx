@@ -16,6 +16,10 @@ import AttributeClass from "../util/classes/attribute";
 import SaveIcon from "@mui/icons-material/Save";
 import generateSQL from "../util/converter.js";
 
+// Passage of token from Flask to Node to Oracle
+import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+
 const nodeTypes = {
   relation: Relation,
   entity: Entity,
@@ -27,7 +31,6 @@ const edgeTypes = {
 };
 
 const initialNodes = mock.nodes;
-
 const initialEdges = mock.edges;
 
 const getType = (handle) => {
@@ -265,8 +268,18 @@ const ERD = ({id,savedNodes,savedEdges}) => {
     // console.log(Relations);
   }, [nodes, edges]);
 
+  const [searchParams] = useSearchParams();
+    useEffect(() => {
+      const token = searchParams.get('token');
+      if (token) {
+        localStorage.setItem('jwt', token); // or use a global auth context
+        console.log("Token received:", token);
+      }
+    }, [searchParams]);
+    
   const handleSave = useCallback(() => {
     const url = "http://127.0.0.1:5000/api/create-diagram";
+    const token = localStorage.getItem('jwt');
     const data = {
       id:(id) ? id : uuidv4(),
       nodes: nodes,
@@ -277,24 +290,25 @@ const ERD = ({id,savedNodes,savedEdges}) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
       },
       body: JSON.stringify(data),
     };
     console.log(data);
-    // fetch(url, options)
-    //   .then((response) => {
-    //     if (!response.ok) {
-    //       throw new Error(`HTTP error! status: ${response.status}`);
-    //     }
-    //     return response.json();
-    //   })
-    //   .then((responseData) => {
-    //     console.log("Success:", responseData);
-    //     triggerAlert("success","ERD Diagram Saved")
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error:", error);
-    //   });
+    fetch(url, options)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((responseData) => {
+        console.log("Success:", responseData);
+        triggerAlert("success","ERD Diagram Saved")
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
   });
 
   return (

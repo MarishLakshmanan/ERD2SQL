@@ -53,7 +53,7 @@ def login():
             # Generate JWT
             token = jwt.encode({
                 'sub': email,
-                'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
+                'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=24)
             }, "SECRET_KEY", algorithm='HS256')
             return redirect(url_for('dashboard'))
         # +f"?token={token}"
@@ -100,11 +100,24 @@ def get_oracle_data():
         return jsonify({"error": str(e)}), 500
     
 @app.route('/api/create-diagram', methods=['POST'])
-@login_required
+# @login_required
 def create_diagram():
     data = request.data.decode("utf-8")
     print(data)
-    print(current_user.email)
+
+    auth = request.headers.get('Authorization', '')
+    if not auth.startswith('Bearer '):
+        return jsonify({"error": "forbidden"}), 401
+    token = auth.split(' ')[1]
+    
+    try:
+        decoded = jwt.decode(token, "SECRET_KEY", algorithms=['HS256'])
+        request.user = decoded['sub']
+        print(request.user)
+    except jwt.ExpiredSignatureError:
+        return jsonify({"error": 'Token expired'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({"error": 'Invalid token'}), 401
 
     if data is None:
         return jsonify({'error': 'No data has been passed from client'}), 400
@@ -114,16 +127,24 @@ def create_diagram():
         print("Connection with oracle db established.")
         cursor = conn.cursor()
         print("whatever the hell cursor is.")
-        cursor.execute("""
-            INSERT INTO JSON_DATA (username, data)
-            VALUES (:username, :data)
-        """, {"username": current_user.email, "data": data})
-        print("insertion query issued.")
+        try:
+            print("Checking for existence of requesting user. If not in table, will create new row with pertinent data and association.")
+            cursor.execute("""
+                INSERT INTO JSON_DATA (username, data)
+                VALUES (:username, :data)
+            """, {"username": request.user, "data": data})
+        except oracledb.IntegrityError:
+            cursor.execute("""
+                UPDATE JSON_DATA
+                SET data = :data
+                WHERE username = :username
+            """, {"username": request.user, "data": data})
+            print("Data already exists under user. Updating existing info to match new request.")
         conn.commit()
-        print("effects committed.")
+        print("Effects committed.")
         cursor.close()
         conn.close()
-        print("query handler and connection closed.")
+        print("Query handler and connection closed.")
 
         return jsonify({'message': 'Data added successfully'}), 201
 
