@@ -1,35 +1,17 @@
 
 
 class AttributeClass{
-    id
-    name
-    type
+    id;
+    name;
+    primaryKey = false;
+    type; // Data type
 
-    constructor(id,name,type = "Normal"){
-        this.id = id
-        this.name = name
-        this.type = type
+    constructor(id,name,primary_key,type){
+        this.id = id;
+        this.name = name;
+        this.primaryKey = primary_key;
+        this.type = type;
     }
-
-    // get id(){
-    //     return this.id
-    // }
-    //
-    // set name(newName){
-    //     this.name = newName
-    // }
-    //
-    // get name() {
-    //     return this.name
-    // }
-    //
-    // set type(newType){
-    //     this.type = newType
-    // }
-    //
-    // get type() {
-    //     return this.type
-    // }
 
 }
 

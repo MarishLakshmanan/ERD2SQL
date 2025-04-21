@@ -14,6 +14,7 @@ import EntityClass from "../util/classes/entity";
 import RelationClass from "../util/classes/relation";
 import AttributeClass from "../util/classes/attribute";
 import SaveIcon from "@mui/icons-material/Save";
+import generateSQL from "../util/converter.js";
 
 const nodeTypes = {
   relation: Relation,
@@ -176,6 +177,17 @@ const ERD = ({id,savedNodes,savedEdges}) => {
     const Relations = {};
     const Attributes = {};
 
+    if (edges.length !== nodes.length - 1) {
+      console.error(
+          "There are unconnected nodes in your diagram, Please make sure everything is connected"
+      );
+      triggerAlert(
+          "warning",
+          "There are unconnected nodes in your diagram, Please make sure everything is connected"
+      );
+      return;
+    }
+
     nodes.forEach((node) => {
       if (node.type === "entity")
         Entities[node.id] = generateEntityObject(node);
@@ -185,76 +197,72 @@ const ERD = ({id,savedNodes,savedEdges}) => {
         Attributes[node.id] = generateAttributeObject(node);
     });
 
-    for (const edge of edges) {
-      const source = edge.data.source;
-      const target = edge.data.target;
-      // console.log(`${source} => ${target}`);
-      if (source === "attribute" && target === "entity") {
-        if (Attributes[edge.source].type === "Primary-Key") {
-          if (!Entities[edge.target].primary_key) {
-            Entities[edge.target].primary_key = edge.source;
-          } else {
-            console.error(
-              "More than one primary key not allowed for an Entity"
-            );
-            triggerAlert(
-              "warning",
-              "More than one primary key not allowed for an Entity"
-            );
-            return;
-          }
-        }
-        Entities[edge.target].attr.push(Attributes[edge.source]);
-      }
-      if (source === "attribute" && target === "relation") {
-        Relations[edge.target].attr.push(Attributes[edge.source]);
-      }
-      if (source === "entity" && target === "relation") {
-        let relations = {
-          source: edge.source,
-          target: edge.target,
-          relation: edge.data.relation,
-        };
-        if (Relations[edge.target].relation.length < 2) {
-          Relations[edge.target].relation.push(relations);
-        } else {
-          console.error("A Relation can have only two Entities related to it");
-          triggerAlert(
-            "warning",
-            "A Relation can have only two Entities related to it"
-          );
-          return;
-        }
-        let temp = { ...Relations[edge.target], relation: edge.data.relation };
-        Entities[edge.source].relations.push(temp);
-      }
+    try {
+      generateSQL(Entities, Attributes, Relations, edges);
+    } catch (e) {
+      console.error(e);
+      triggerAlert("warning", e);
     }
 
-    let temp = Object.values(Relations);
-    for (const x of temp) {
-      if (x.relation.length !== 2) {
-        triggerAlert(
-          "error",
-          "A relation should have two Entities connected to it"
-        );
-        console.error("A relation should have two Entities connected to it");
-        return;
-      }
-    }
-
-    if (edges.length !== nodes.length - 1) {
-      triggerAlert(
-        "error",
-        "There are unconnected nodes in your diagram, Please make sure everything is connected"
-      );
-      console.error(
-        "There are unconnected nodes in your diagram, Please make sure everything is connected"
-      );
-      return;
-    }
-
-    console.log(Entities);
-    console.log(Relations);
+    // for (const edge of edges) {
+    //   const source = edge.source.id;
+    //   const target = edge.data.target;
+    //   // console.log(`${source} => ${target}`);
+    //   if (source === "attribute" && target === "entity") {
+    //     if (Attributes[edge.source].type === "Primary-Key") {
+    //       if (!Entities[edge.target].primary_key) {
+    //         Entities[edge.target].primary_key = edge.source;
+    //       } else {
+    //         console.error(
+    //           "More than one primary key not allowed for an Entity"
+    //         );
+    //         triggerAlert(
+    //           "warning",
+    //           "More than one primary key not allowed for an Entity"
+    //         );
+    //         return;
+    //       }
+    //     }
+    //     Entities[edge.target].attrs.push(Attributes[edge.source]);
+    //   }
+    //   if (source === "attribute" && target === "relation") {
+    //     Relations[edge.target].attrs.push(Attributes[edge.source]);
+    //   }
+    //   if (source === "entity" && target === "relation") {
+    //     let relations = {
+    //       source: edge.source,
+    //       target: edge.target,
+    //       relation: edge.data.relation,
+    //     };
+    //     if (Relations[edge.target].relation.length < 2) {
+    //       Relations[edge.target].relation.push(relations);
+    //     } else {
+    //       console.error("A Relation can have only two Entities related to it");
+    //       triggerAlert(
+    //         "warning",
+    //         "A Relation can have only two Entities related to it"
+    //       );
+    //       return;
+    //     }
+    //     let temp = { ...Relations[edge.target], relation: edge.data.relation };
+    //     Entities[edge.source].relations.push(temp);
+    //   }
+    // }
+    //
+    // let temp = Object.values(Relations);
+    // for (const x of temp) {
+    //   if (x.relation.length !== 2) {
+    //     triggerAlert(
+    //       "error",
+    //       "A relation should have two Entities connected to it"
+    //     );
+    //     console.error("A relation should have two Entities connected to it");
+    //     return;
+    //   }
+    // }
+    //
+    // console.log(Entities);
+    // console.log(Relations);
   }, [nodes, edges]);
 
   const handleSave = useCallback(() => {
