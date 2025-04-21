@@ -10,7 +10,10 @@ function handleForeignKey(foreignKey) {
     for (const attr of foreignKey.entity.attrs) {
         if (attr.primaryKey) {
             foreignKeys.push(attr.name);
-            sql += `,\n  ${foreignKey.entity.name}_${attr.name} ${attr.type} NOT NULL`;
+            sql += `,\n  ${foreignKey.entity.name}_${attr.name} ${attr.type}`;
+            if (foreignKey.mandatory) {
+                sql += " NOT NULL";
+            }
             if (foreignKey.unique) {
                 sql += " UNIQUE";
             }
@@ -227,11 +230,15 @@ function generateSQL(entities, attributes, relations, edges) {
             sql += ret.sql;
             fKeyStmt += ret.fKeyStmt;
         }
-        sql += `,\n  PRIMARY KEY`
-        for (const key in primaryKeys) {
-
+        sql += `,\n  PRIMARY KEY (${primaryKeys[0]}`
+        for (const key in primaryKeys.slice(1)) {
+            sql += `, ${key}`
         }
+        sql += ")";
+        sql += fKeyStmt;
+        sql += "\n);\n";
     }
+    return sql;
 
 }
 
