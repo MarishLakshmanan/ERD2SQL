@@ -237,7 +237,7 @@ const ERD = ({id,savedNodes,savedEdges}) => {
 
 
 
-    // console.log(Entities);
+    console.log(Entities);
     // console.log(Relations);
     // console.log(Attributes);
     // console.log(Edges);

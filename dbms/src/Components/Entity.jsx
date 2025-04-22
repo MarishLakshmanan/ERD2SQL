@@ -12,7 +12,7 @@ const Entity = ({id,data}) => {
     const handleChange = (event)=>{
       setType(event.target.checked)
       updateNode(id,((node)=>{
-        node.data.type = event.target.checked
+        node.data.weak = event.target.checked
         return node
       }))
     }
