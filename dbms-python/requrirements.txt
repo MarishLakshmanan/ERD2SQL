@@ -6,6 +6,8 @@ cryptography==44.0.2
 defusedxml==0.7.1
 fastjsonschema==2.20.0
 flask-cors==5.0.1
+flask-login==0.6.3
+flask-sqlalchemy==3.1.1
 ipython==8.12.3
 jsonschema==4.23.0
 lxml==5.3.0
@@ -17,6 +19,7 @@ oracledb==3.1.0
 pigar==2.1.6
 pipreqs==0.5.0
 protobuf==5.28.3
+pyjwt==2.10.1
 pymemcache==4.0.0
 python-memcached==1.62
 PyYAML==6.0.2
@@ -24,6 +27,7 @@ rpds-py==0.21.0
 rsa==4.9
 redis==5.2.0
 requests==2.32.3
+sqlalchemy==2.0.40
 virtualenv==20.27.1
 Wand==0.6.13
 
