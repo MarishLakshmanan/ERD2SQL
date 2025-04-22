@@ -32,21 +32,12 @@ function handleForeignKey(foreignKey) {
 }
 
 function generateSQL(entities, attributes, relations, edges) {
-    // const entities = new Map();
-    // const relations = new Map();
-    // const attributes = new Map();
+    // console.log(JSON.parse(JSON.stringify(Object.fromEntries(entities))));
+    // console.log(JSON.parse(JSON.stringify(Object.fromEntries(relations))));
+    // console.log(JSON.parse(JSON.stringify(Object.fromEntries(edges))));
 
-    // nodes.forEach((node) => {
-    //     if (node.type === "entity")
-    //         entities[node.id] = new EntityClass(node.id, node.data.label, node.data.type);
-    //     if (node.type === "relation")
-    //         relations[node.id] = new RelationClass(node.id, node.data.label, node.data.type);
-    //     if (node.type === "attribute")
-    //         attributes[node.id] = new AttributeClass(node.id, node.data.label, node.data.type);
-    // });
-
-    for (const [key,edge] of edges) {
-        console.log(edge);
+    for (const [_,edge] of edges) {
+        // console.log(edge);
         
         const source = edge.source.type;
         const target = edge.target.type;
@@ -61,6 +52,9 @@ function generateSQL(entities, attributes, relations, edges) {
         } else if (source === "entity" && target === "relation") {
             const entity = entities.get(edge.source.id);
             const relation = relations.get(edge.target.id);
+            console.log(JSON.parse(JSON.stringify(edge)));
+            console.log(JSON.parse(JSON.stringify(relation)));
+            console.log(JSON.parse(JSON.stringify(entity)));
             if (relation.entities.length < 2) {
                 relation.entities.push(entity);
                 relation.mandatory.push(edge.mandatory);
@@ -68,9 +62,14 @@ function generateSQL(entities, attributes, relations, edges) {
             } else {
                 throw `Relations can only relate two entities (${relation.name})`;
             }
+            console.log(JSON.parse(JSON.stringify(relation)));
+            console.log(JSON.parse(JSON.stringify(entity)));
         } else if (source === "relation" && target === "entity") {
             const entity = entities.get(edge.target.id);
             const relation = relations.get(edge.source.id);
+            console.log(edge);
+            console.log(relation);
+            console.log(entity);
             if (relation.entities.length < 2) {
                 relation.entities.push(entity);
                 relation.mandatory.push(edge.mandatory);
@@ -78,11 +77,15 @@ function generateSQL(entities, attributes, relations, edges) {
             } else {
                 throw `Relations can only relate two entities (${relation.name})`;
             }
+            console.log(relation);
+            console.log(entity);
         }
     }
 
     // Conditions for a relation edge to be considered identifying: singular, mandatory, connects to a weak entity
-    for (const [key,relation] of relations) {
+    for (const [_,relation] of relations) {
+        // console.log(`Relation ${relation.name}`);
+        // console.log(relation);
         if (relation.entities.length !== 2) {
             throw `Relations need to relate two entities (${relation.name})`;
         }
@@ -110,13 +113,13 @@ function generateSQL(entities, attributes, relations, edges) {
                     throw `Weak relations must define a weak entity (${relation.name})`;
                 }
                 // entities[0] is not weak, entities[1] is weak; identifying relationship of entities[1]
-                if (entities[1].identifyingEntity !== undefined) {
-                    throw `Entities can not have two identifying relationships ${entities[1].name}`;
+                if (relation.entities[1].identifyingEntity !== undefined) {
+                    throw `Entities can not have two identifying relationships (${relation.entities[1].name})`;
                 }
-                relation.entities[1].attrs.push(relation.attrs);
+                relation.entities[1].attrs.push(...relation.attrs);
                 relation.entities[1].identifyingEntity = new ForeignKey(relation.entities[0], true);
             } else {
-                relation.entities[1].attrs.push(relation.attrs);
+                relation.entities[1].attrs.push(...relation.attrs);
                 relation.entities[1].foreignKeys.push(new ForeignKey(relation.entities[0], relation.mandatory[0]));
             }
         } else if (!relation.many[0] && relation.many[1]) {
@@ -128,13 +131,13 @@ function generateSQL(entities, attributes, relations, edges) {
                     throw `Weak relations must define a weak entity (${relation.name})`;
                 }
                 // entities[0] is weak, entities[1] is not weak; identifying relationship of entities[0]
-                if (entities[0].identifyingEntity !== undefined) {
-                    throw `Entities can not have two identifying relationships ${entities[0].name}`;
+                if (relation.entities[0].identifyingEntity !== undefined) {
+                    throw `Entities can not have two identifying relationships (${relation.entities[0].name})`;
                 }
-                relation.entities[0].attrs.push(relation.attrs);
+                relation.entities[0].attrs.push(...relation.attrs);
                 relation.entities[0].identifyingEntity = new ForeignKey(relation.entities[1], true);
             } else {
-                relation.entities[0].attrs.push(relation.attrs);
+                relation.entities[0].attrs.push(...relation.attrs);
                 relation.entities[0].foreignKeys.push(new ForeignKey(relation.entities[1], relation.mandatory[1]));
             }
         } else { // one-to-one
@@ -143,24 +146,24 @@ function generateSQL(entities, attributes, relations, edges) {
                     if (relation.entities[0].weak && relation.entities[1].weak) {
                         throw `Weak relations can not define two weak entities (${relation.name})`;
                     } else if (relation.entities[0].weak && !relation.entities[1].weak) { // Identifying relation to entities[0]
-                        if (entities[0].identifyingEntity !== undefined) {
-                            throw `Entities can not have two identifying relationships ${entities[0].name}`;
+                        if (relation.entities[0].identifyingEntity !== undefined) {
+                            throw `Entities can not have two identifying relationships (${relation.entities[0].name})`;
                         }
-                        relation.entities[0].attrs.push(relation.attrs);
+                        relation.entities[0].attrs.push(...relation.attrs);
                         relation.entities[0].identifyingEntity = new ForeignKey(relation.entities[1], true, true);
                         relation.entities[0].identifyingEntityUnique = true;
                     } else if (!relation.entities[0].weak && relation.entities[1].weak) { // Identifying relation to entities[1]
-                        if (entities[1].identifyingEntity !== undefined) {
-                            throw `Entities can not have two identifying relationships ${entities[1].name}`;
+                        if (relation.entities[1].identifyingEntity !== undefined) {
+                            throw `Entities can not have two identifying relationships (${relation.entities[1].name})`;
                         }
-                        relation.entities[1].attrs.push(relation.attrs);
+                        relation.entities[1].attrs.push(...relation.attrs);
                         relation.entities[1].identifyingEntity = new ForeignKey(relation.entities[0], true, true);
                     } else { // neither entity is weak
                         throw `Weak relations must define a weak entity (${relation.name})`;
                     }
                 } else {
                     // Maybe ask user? pick left
-                    relation.entities[0].attrs.push(relation.attrs);
+                    relation.entities[0].attrs.push(...relation.attrs);
                     relation.entities[0].foreignKeys.push(new ForeignKey(relation.entities[1], true, true));
                 }
             } else if (relation.mandatory[0] && !relation.mandatory[1]) {
@@ -168,16 +171,16 @@ function generateSQL(entities, attributes, relations, edges) {
                     if (relation.entities[0].weak && relation.entities[1].weak) {
                         throw `Weak entities can not define weak entities (${relation.name})`;
                     } else if (relation.entities[0].weak) { // Identifying relation to entities[0]
-                        if (entities[0].identifyingEntity !== undefined) {
-                            throw `Entities can not have two identifying relationships ${entities[0].name}`;
+                        if (relation.entities[0].identifyingEntity !== undefined) {
+                            throw `Entities can not have two identifying relationships (${relation.entities[0].name})`;
                         }
-                        relation.entities[0].attrs.push(relation.attrs);
+                        relation.entities[0].attrs.push(...relation.attrs);
                         relation.entities[0].identifyingEntity = new ForeignKey(relation.entities[1], true, true);
                     } else {
                         throw `Weak relations must define a weak entity (${relation.name})`;
                     }
                 } else {
-                    relation.entities[0].attrs.push(relation.attrs);
+                    relation.entities[0].attrs.push(...relation.attrs);
                     relation.entities[0].foreignKeys.push(new ForeignKey(relation.entities[1], true, true));
                 }
             } else if (!relation.mandatory[0] && relation.mandatory[1]) {
@@ -185,8 +188,9 @@ function generateSQL(entities, attributes, relations, edges) {
                     if (relation.entities[0].weak && relation.entities[1].weak) {
                         throw `Weak entities can not define weak entities (${relation.name})`;
                     } else if (relation.entities[1].weak) { // Identifying relation to entities[1]
-                        if (entities[1].identifyingEntity !== undefined) {
-                            throw `Entities can not have two identifying relationships ${entities[1].name}`;
+                        console.log();
+                        if (relation.entities[1].identifyingEntity !== undefined) {
+                            throw `Entities can not have two identifying relationships (${relation.entities[1].name})`;
                         }
                         relation.entities[1].attrs.push(relation.attrs);
                         relation.entities[1].identifyingEntity = new ForeignKey(relation.entities[0], true, true);
@@ -210,30 +214,43 @@ function generateSQL(entities, attributes, relations, edges) {
 
     let sql = ""
 
-    for (const entity of entities) {
+    for (const [_, entity] of entities) {
+        // console.log(`Entity ${entity.name}`);
+        // console.log(entity);
         let fKeyStmt = "";
         const primaryKeys = [];
         sql += `CREATE TABLE ${entity.name.toUpperCase()}(\n`;
         sql += `  ${entity.attrs[0].name} ${entity.attrs[0].type}`;
+        if (entity.attrs[0].primaryKey) {
+            primaryKeys.push(entity.attrs[0].name);
+        }
         for (const attr of entity.attrs.slice(1)) {
-            sql += `,\n  ${attr.name} ${attr.type},\n`;
+            sql += `,\n  ${attr.name} ${attr.type}`;
             if (attr.primaryKey) {
                 primaryKeys.push(attr.name);
             }
         }
         if (entity.weak) {
+            if (entity.identifyingEntity === undefined) {
+                throw `Weak entities must have a defining relation (${entity.name})`;
+            }
             const ret = handleForeignKey(entity.identifyingEntity);
             sql += ret.sql;
             fKeyStmt += ret.fKeyStmt;
-            primaryKeys.push(ret.foreignKeys);
+            for (const key of ret.foreignKeys) {
+                primaryKeys.push(`${entity.identifyingEntity.entity.name}_${key}`);
+            }
         }
         for (const foreignKey of entity.foreignKeys) {
             const ret = handleForeignKey(foreignKey);
             sql += ret.sql;
             fKeyStmt += ret.fKeyStmt;
         }
+        if (primaryKeys.length === 0) {
+            throw `Entities must have at least one primary key (${entity.name})`;
+        }
         sql += `,\n  PRIMARY KEY (${primaryKeys[0]}`
-        for (const key in primaryKeys.slice(1)) {
+        for (const key of primaryKeys.slice(1)) {
             sql += `, ${key}`
         }
         sql += ")";

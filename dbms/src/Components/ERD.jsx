@@ -99,15 +99,20 @@ function generateEdgeObject(edge){
     case "Many-to-Many":
       many = true
       mandatory = false
+      break;
     case "One-to-Many":
       many = false
       mandatory = false
+      break;
     case "Constraint-M-to-M":
       many = true
       mandatory = true
+      break;
     case "Constraint-O-to-M":
       many = false
       mandatory = true
+      break;
+    default:
   }
   
   return new EdgeClass(edge.source,edge.target,edge.sourceHandle,edge.targetHandle,edge.data.source,edge.data.target,many,mandatory)
@@ -235,75 +240,16 @@ const ERD = ({id,savedNodes,savedEdges}) => {
     // console.log(Entities);
     // console.log(Relations);
     // console.log(Attributes);
-    console.log(Edges);
+    // console.log(Edges);
     
-
+    let sql = "";
     try {
-      generateSQL(Entities, Attributes, Relations, Edges);
+      sql = generateSQL(Entities, Attributes, Relations, Edges);
     } catch (e) {
       console.error(e);
       triggerAlert("warning", e);
     }
-
-    // for (const edge of edges) {
-    //   const source = edge.source.id;
-    //   const target = edge.data.target;
-    //   // console.log(`${source} => ${target}`);
-    //   if (source === "attribute" && target === "entity") {
-    //     if (Attributes[edge.source].type === "Primary-Key") {
-    //       if (!Entities[edge.target].primary_key) {
-    //         Entities[edge.target].primary_key = edge.source;
-    //       } else {
-    //         console.error(
-    //           "More than one primary key not allowed for an Entity"
-    //         );
-    //         triggerAlert(
-    //           "warning",
-    //           "More than one primary key not allowed for an Entity"
-    //         );
-    //         return;
-    //       }
-    //     }
-    //     Entities[edge.target].attrs.push(Attributes[edge.source]);
-    //   }
-    //   if (source === "attribute" && target === "relation") {
-    //     Relations[edge.target].attrs.push(Attributes[edge.source]);
-    //   }
-    //   if (source === "entity" && target === "relation") {
-    //     let relations = {
-    //       source: edge.source,
-    //       target: edge.target,
-    //       relation: edge.data.relation,
-    //     };
-    //     if (Relations[edge.target].relation.length < 2) {
-    //       Relations[edge.target].relation.push(relations);
-    //     } else {
-    //       console.error("A Relation can have only two Entities related to it");
-    //       triggerAlert(
-    //         "warning",
-    //         "A Relation can have only two Entities related to it"
-    //       );
-    //       return;
-    //     }
-    //     let temp = { ...Relations[edge.target], relation: edge.data.relation };
-    //     Entities[edge.source].relations.push(temp);
-    //   }
-    // }
-    //
-    // let temp = Object.values(Relations);
-    // for (const x of temp) {
-    //   if (x.relation.length !== 2) {
-    //     triggerAlert(
-    //       "error",
-    //       "A relation should have two Entities connected to it"
-    //     );
-    //     console.error("A relation should have two Entities connected to it");
-    //     return;
-    //   }
-    // }
-    //
-    // console.log(Entities);
-    // console.log(Relations);
+    console.log(sql);
   }, [nodes, edges]);
 
   const [searchParams] = useSearchParams();
