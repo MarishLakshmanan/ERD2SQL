@@ -19,6 +19,7 @@ import generateSQL from "../util/converter.js";
 // Passage of token from Flask to Node to Oracle
 import { useEffect } from 'react';
 import { redirect, useSearchParams } from 'react-router-dom';
+import EdgeClass from "../util/classes/edge.js";
 
 const nodeTypes = {
   relation: Relation,
@@ -83,14 +84,18 @@ function generateRelationObject(node) {
   return new RelationClass(node.id, node.data.label, node.data?.weak);
 }
 function generateAttributeObject(node) {
-  
-  
   return new AttributeClass(
       node.id,
       node.data.label,
       (node.data.type === "Primary-Key"),
       node.data.dataType
   );
+}
+
+function generateEdgeObject(edge){
+  
+  
+  return new EdgeClass(edge.source,edge.target,edge.sourceHandle,edge.targetHandle,edge.data.source,edge.data.target,edge.many,edge.mandatory)
 }
 
 const ERD = ({id,savedNodes,savedEdges}) => {
@@ -183,6 +188,7 @@ const ERD = ({id,savedNodes,savedEdges}) => {
     const Entities = new Map();
     const Relations = new Map();
     const Attributes = new Map();
+    const Edges = new Map();
 
     if (edges.length !== nodes.length - 1) {
       console.error(
@@ -204,17 +210,22 @@ const ERD = ({id,savedNodes,savedEdges}) => {
         Attributes.set(node.id, generateAttributeObject(node));
     });
 
+
+    // generateEdgeObject(edges[0])
+
+
+
     // console.log(Entities);
     // console.log(Relations);
     // console.log(Attributes);
     
 
-    try {
-      generateSQL(Entities, Attributes, Relations, edges);
-    } catch (e) {
-      console.error(e);
-      triggerAlert("warning", e);
-    }
+    // try {
+    //   generateSQL(Entities, Attributes, Relations, edges);
+    // } catch (e) {
+    //   console.error(e);
+    //   triggerAlert("warning", e);
+    // }
 
     // for (const edge of edges) {
     //   const source = edge.source.id;

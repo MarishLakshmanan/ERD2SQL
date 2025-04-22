@@ -1,12 +1,12 @@
-import { Box, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material'
+import { Box, Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, Select, Typography } from '@mui/material'
 import { Handle, Position, useReactFlow } from '@xyflow/react'
 import React, { useState } from 'react'
 
-const typeStyles = {
-  "normal":"",
-  "primary-key":"underline",
-  "candidate-key":"underline decoration-dashed"
-}
+// const typeStyles = {
+//   "normal":"",
+//   "primary-key":"underline",
+//   "candidate-key":"underline decoration-dashed"
+// }
 
 const types = ["Normal","Primary-Key","Candidate-Key"]
 
@@ -45,6 +45,7 @@ const Attribute = ({data,id}) => {
   const [dataType,setDataType] = useState(data?.dataType || "CHAR")
  
   const [style,setStyle] = useState("")
+
   const handleChange = (event)=>{
     setType(event.target.value)
     setStyle(typeStyles[event.target.value.toLowerCase()])
@@ -94,6 +95,7 @@ const Attribute = ({data,id}) => {
             })}
           </Select>
         </FormControl>
+        {/* <FormControlLabel checked={type} onChange={handleChange} control={<Checkbox />} label="Weak" /> */}
         <Handle type='source' position={Position.Bottom} id={"a-a"} isConnectable={(connections) => connections.length < 1} />
     </Box>
   )
