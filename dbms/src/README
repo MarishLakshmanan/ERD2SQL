@@ -1,0 +1,3 @@
+npm install react-router-dom
+npm install     # (if not already done)
+npm run dev
