@@ -1,26 +1,37 @@
-import { Routes, Route } from "react-router-dom";
+
 import { Box, ThemeProvider } from "@mui/material";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
-import SignIn from "./pages/SignIn";
-import SignUp from "./pages/SignUp";
-import DndBoard from "./Components/DndBoard";
 import ERD from "./Components/ERD";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 import { theme } from "./theme";
-import Home from "./Pages/Home";
+import Home from "./pages/Home";
 
 export default function App() {
   return (
     <ThemeProvider theme={theme}>
-      <Box className="w-full h-screen">
+      <Box className="w-full h-screen ">
+      {/* <BrowserRouter> */}
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/editor" element={<EditorRoute />} />
+            <Route path="*" element={<Navigate to="/" />} />
         
-        <Routes>
-          <Route path="/" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/editor" element={<ERD />} />
-          <Route path="/erd" element={<ERD />} />
-        </Routes>
+          </Routes>
+        {/* </BrowserRouter> */}
       </Box>
     </ThemeProvider>
+    
   );
 }
+
+// Protected Route Logic: only show ERD if token exists
+const EditorRoute = () => {
+  const token = localStorage.getItem("jwt");
+  return token ? <ERD /> : <Navigate to="/" />;
+};
+
+// export default App;
