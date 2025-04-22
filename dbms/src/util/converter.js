@@ -49,16 +49,16 @@ function generateSQL(entities, attributes, relations, edges) {
         const source = edge.source.type;
         const target = edge.target.type;
         if (source === "attribute" && target === "entity") {
-            entities[edge.target.id].attrs.push(attributes[edge.source.id]);
+            entities.get(edge.target.id).attrs.push(attributes.get(edge.source.id));
         } else if (source === "entity" && target === "attribute") {
-            entities[edge.source.id].attrs.push(attributes[edge.target.id]);
+            entities.get(edge.source.id).attrs.push(attributes.get(edge.target.id));
         } else if (source === "attribute" && target === "relation") {
-            relations[edge.target.id].attrs.push(attributes[edge.source.id]);
+            relations.get(edge.target.id).attrs.push(attributes.get(edge.source.id));
         } else if (source === "relation" && target === "attribute") {
-            relations[edge.source.id].attrs.push(attributes[edge.target.id]);
+            relations.get(edge.source.id).attrs.push(attributes.get(edge.target.id));
         } else if (source === "entity" && target === "relation") {
-            const entity = entities[edge.source.id];
-            const relation = relations[edge.target.id];
+            const entity = entities.get(edge.source.id);
+            const relation = relations.get(edge.target.id);
             if (relation.entities.length < 2) {
                 relation.entities.push(entity);
                 relation.mandatory.push(edge.mandatory);
@@ -67,8 +67,8 @@ function generateSQL(entities, attributes, relations, edges) {
                 throw `Relations can only relate two entities (${relation.name})`;
             }
         } else if (source === "relation" && target === "entity") {
-            const entity = entities[edge.target.id];
-            const relation = relations[edge.source.id];
+            const entity = entities.get(edge.target.id);
+            const relation = relations.get(edge.source.id);
             if (relation.entities.length < 2) {
                 relation.entities.push(entity);
                 relation.mandatory.push(edge.mandatory);
@@ -98,7 +98,7 @@ function generateSQL(entities, attributes, relations, edges) {
                 new ForeignKey(relation.entities[0]),
                 new ForeignKey(relation.entities[1])
             ];
-            entities[relation.id] =  new_entity;
+            entities.set(relation.id, new_entity);
         } else if (relation.many[0] && !relation.many[1]) {
             if (relation.weak) {
                 if (relation.entities[0].weak) {

@@ -176,12 +176,13 @@ const ERD = ({id,savedNodes,savedEdges}) => {
     let id = uuidv4();
     addNodes(id, name, "attribute");
   });
+
   const handleGenerate = useCallback(() => {
     console.log(nodes.length, edges.length);
 
-    const Entities = {};
-    const Relations = {};
-    const Attributes = {};
+    const Entities = new Map();
+    const Relations = new Map();
+    const Attributes = new Map();
 
     if (edges.length !== nodes.length - 1) {
       console.error(
@@ -196,11 +197,11 @@ const ERD = ({id,savedNodes,savedEdges}) => {
 
     nodes.forEach((node) => {
       if (node.type === "entity")
-        Entities[node.id] = generateEntityObject(node);
+        Entities.set(node.id, generateEntityObject(node));
       if (node.type === "relation")
-        Relations[node.id] = generateRelationObject(node);
+        Relations.set(node.id, generateRelationObject(node));
       if (node.type === "attribute")
-        Attributes[node.id] = generateAttributeObject(node);
+        Attributes.set(node.id, generateAttributeObject(node));
     });
 
     // console.log(Entities);
