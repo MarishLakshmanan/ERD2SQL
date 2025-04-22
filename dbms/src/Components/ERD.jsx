@@ -93,9 +93,24 @@ function generateAttributeObject(node) {
 }
 
 function generateEdgeObject(edge){
+  let many = false
+  let mandatory = false
+  switch(edge.data.relation){
+    case "Many-to-Many":
+      many = true
+      mandatory = false
+    case "One-to-Many":
+      many = false
+      mandatory = false
+    case "Constraint-M-to-M":
+      many = true
+      mandatory = true
+    case "Constraint-O-to-M":
+      many = false
+      mandatory = true
+  }
   
-  
-  return new EdgeClass(edge.source,edge.target,edge.sourceHandle,edge.targetHandle,edge.data.source,edge.data.target,edge.many,edge.mandatory)
+  return new EdgeClass(edge.source,edge.target,edge.sourceHandle,edge.targetHandle,edge.data.source,edge.data.target,many,mandatory)
 }
 
 const ERD = ({id,savedNodes,savedEdges}) => {
@@ -210,22 +225,25 @@ const ERD = ({id,savedNodes,savedEdges}) => {
         Attributes.set(node.id, generateAttributeObject(node));
     });
 
-
-    // generateEdgeObject(edges[0])
+    edges.forEach((edge)=>{
+      Edges.set(edge.id,generateEdgeObject(edge))
+    })
+    
 
 
 
     // console.log(Entities);
     // console.log(Relations);
     // console.log(Attributes);
+    console.log(Edges);
     
 
-    // try {
-    //   generateSQL(Entities, Attributes, Relations, edges);
-    // } catch (e) {
-    //   console.error(e);
-    //   triggerAlert("warning", e);
-    // }
+    try {
+      generateSQL(Entities, Attributes, Relations, Edges);
+    } catch (e) {
+      console.error(e);
+      triggerAlert("warning", e);
+    }
 
     // for (const edge of edges) {
     //   const source = edge.source.id;

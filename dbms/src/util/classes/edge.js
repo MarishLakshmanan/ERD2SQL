@@ -10,6 +10,7 @@ class EdgeClass {
         this.source.name = sourceName;
         this.target.name = targetName;
         this.source.type = sourceType;
+        this.target.type = targetType;
         this.target.id = targetId;
         this.many = many;
         this.mandatory = mandatory;

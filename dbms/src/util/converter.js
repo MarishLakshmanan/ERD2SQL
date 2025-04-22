@@ -45,7 +45,9 @@ function generateSQL(entities, attributes, relations, edges) {
     //         attributes[node.id] = new AttributeClass(node.id, node.data.label, node.data.type);
     // });
 
-    for (const edge of edges) {
+    for (const [key,edge] of edges) {
+        console.log(edge);
+        
         const source = edge.source.type;
         const target = edge.target.type;
         if (source === "attribute" && target === "entity") {
@@ -80,7 +82,7 @@ function generateSQL(entities, attributes, relations, edges) {
     }
 
     // Conditions for a relation edge to be considered identifying: singular, mandatory, connects to a weak entity
-    for (const relation of relations) {
+    for (const [key,relation] of relations) {
         if (relation.entities.length !== 2) {
             throw `Relations need to relate two entities (${relation.name})`;
         }
