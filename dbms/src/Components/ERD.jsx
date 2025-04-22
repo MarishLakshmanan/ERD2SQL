@@ -1,4 +1,4 @@
-import {Box, Button, Typography} from "@mui/material";
+import {Box, Button, Card, IconButton, Typography} from "@mui/material";
 import {addEdge, applyEdgeChanges, applyNodeChanges, Background, Controls, ReactFlow,} from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import React, {useCallback, useState} from "react";
@@ -15,11 +15,14 @@ import RelationClass from "../util/classes/relation";
 import AttributeClass from "../util/classes/attribute";
 import SaveIcon from "@mui/icons-material/Save";
 import generateSQL from "../util/converter.js";
+import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
+import CloseIcon from '@mui/icons-material/Close';
 
 // Passage of token from Flask to Node to Oracle
 import { useEffect } from 'react';
 import { redirect, useSearchParams } from 'react-router-dom';
 import EdgeClass from "../util/classes/edge.js";
+
 
 const nodeTypes = {
   relation: Relation,
@@ -130,6 +133,8 @@ const ERD = ({id,savedNodes,savedEdges}) => {
   const [alert, setAlert] = useState(false);
   const [alertMsg, setAlertMsg] = useState("");
   const [severity, setSeverity] = useState("");
+  const [sql,setSQL] = useState("")
+  const [sqlBox,setSQLBox] = useState(false)
 
   const addNodes = useCallback((id, label, type) => {
     const node = generateNode(id, label, type);
@@ -237,7 +242,7 @@ const ERD = ({id,savedNodes,savedEdges}) => {
 
 
 
-    console.log(Entities);
+    // console.log(Entities);
     // console.log(Relations);
     // console.log(Attributes);
     // console.log(Edges);
@@ -245,11 +250,18 @@ const ERD = ({id,savedNodes,savedEdges}) => {
     let sql = "";
     try {
       sql = generateSQL(Entities, Attributes, Relations, Edges);
+      setSQL(sql)
+      triggerAlert("success","SQL has been Generated")
+      setSQLBox(true)
     } catch (e) {
       console.error(e);
       triggerAlert("warning", e);
     }
-    console.log(sql);
+    // console.log(sql);
+    
+
+    
+
   }, [nodes, edges]);
 
   const [searchParams] = useSearchParams();
@@ -295,8 +307,19 @@ const ERD = ({id,savedNodes,savedEdges}) => {
       });
   });
 
+  const handleDownload = useCallback(() => {
+    const blob = new Blob([sql], { type: 'text/sql' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'database.sql'; 
+    a.click();
+
+    URL.revokeObjectURL(url);
+  })
   return (
-    <Box className="w-full h-screen grid grid-cols-[350px_1fr] bg-brand-light">
+    <Box className="w-full relative h-screen grid grid-cols-[350px_1fr] bg-brand-light">
       <Box className="border flex flex-col justify-center items-stretch gap-2 p-2">
         <Button
           variant="outlined"
@@ -360,6 +383,19 @@ const ERD = ({id,savedNodes,savedEdges}) => {
           </Typography>
         </Button>
       </Box>
+      {sqlBox && 
+      <Card className="absolute bottom-2 right-2 w-[300px] h-[400px] p-4 z-100 bg-white">
+        <Box className="w-full h-full relative overflow-scroll">
+          <IconButton onClick={handleDownload} sx={{position:"absolute",background:"white"}} className="absolute bottom-4 left-2 z-101 shadow">
+            <DownloadForOfflineIcon  fontSize="large" sx={{color:"#63A002"}} />
+          </IconButton>
+          <IconButton onClick={()=>{setSQLBox(false)}} sx={{position:"absolute",background:"white"}} className="absolute top-4 right-2 z-101 shadow">
+            <CloseIcon fontSize="small" sx={{color:"red"}} />
+          </IconButton>
+          <Typography component={"pre"} variant="body2">{sql}</Typography>
+        </Box>
+      </Card> }
+      
       <CustomDialog
         triggerAlert={triggerAlert}
         label={label}

@@ -18,6 +18,7 @@ export default function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/home" element={<Home />} />
             <Route path="/editor" element={<EditorRoute />} />
+            <Route path="/erd" element={<ERD />} />
             <Route path="*" element={<Navigate to="/" />} />
         
           </Routes>
