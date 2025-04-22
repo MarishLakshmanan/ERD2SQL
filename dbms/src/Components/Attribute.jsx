@@ -48,7 +48,7 @@ const Attribute = ({data,id}) => {
 
   const handleChange = (event)=>{
     setType(event.target.value)
-    setStyle(typeStyles[event.target.value.toLowerCase()])
+    // setStyle(typeStyles[event.target.value.toLowerCase()])
     updateNode(id,((node)=>{
       node.data.type = event.target.value
       return node

@@ -208,7 +208,7 @@ const mock ={
                 "strokeWidth": 2
             },
             "markerEnd": {
-                "type": "arrowclosed"
+                "type": null
             },
             "sourceHandle": "e-b",
             "targetHandle": "r-c",
