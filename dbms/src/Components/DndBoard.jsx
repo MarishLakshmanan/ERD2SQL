@@ -15,77 +15,11 @@ const SHAPE_TYPES = [
 ];
 
 export default function DndBoard() {
-  const navigate = useNavigate();
-  const [userEmail, setUserEmail] = useState(auth.currentUser?.email || "");
-  const [items, setItems] = useState([]);
-  const [draggingId, setDraggingId] = useState(null);
-  const [editingId, setEditingId] = useState(null);
-
-  const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-      navigate("/");
-    } catch (err) {
-      console.error("Sign out failed:", err);
-    }
-  };
-
-  const handleAddShape = (type) => {
-    const shape = SHAPE_TYPES.find((s) => s.label === type);
-    const newItem = {
-      id: uuidv4(),
-      type: shape.id,
-      label: type,
-      className: shape.className,
-      x: 100 + Math.random() * 400,
-      y: 100 + Math.random() * 300,
-    };
-    setItems((prev) => [...prev, newItem]);
-  };
-
-  const handleMouseDown = (e, id) => {
-    if (e.detail === 2) {
-      setEditingId(id);
-    } else {
-      setDraggingId(id);
-    }
-  };
-
-  const handleMouseMove = (e) => {
-    if (!draggingId) return;
-    const canvas = document.getElementById("canvas");
-    const bounds = canvas.getBoundingClientRect();
-    const x = e.clientX - bounds.left;
-    const y = e.clientY - bounds.top;
-
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === draggingId ? { ...item, x, y } : item
-      )
-    );
-  };
-
-  const handleMouseUp = () => {
-    setDraggingId(null);
-  };
-
-  const handleLabelChange = (e, id) => {
-    const newLabel = e.target.value;
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, label: newLabel } : item
-      )
-    );
-  };
-
-  const handleKeyDown = (e, id) => {
-    if (e.key === "Enter") {
-      setEditingId(null);
-    }
-    if (e.key === "Backspace" && e.target.value === "") {
-      setItems((prev) => prev.filter((item) => item.id !== id));
-    }
-  };
+  const containers = ['A', 'B', 'C'];
+  const [parent, setParent] = useState(null);
+  const draggableMarkup = (
+    <Draggable id="draggable">Drag upsdbfjhsdbjh</Draggable>
+  );
 
   return (
     <div

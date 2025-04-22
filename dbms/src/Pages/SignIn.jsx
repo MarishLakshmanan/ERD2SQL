@@ -14,7 +14,8 @@ export default function SignIn() {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate("/editor");
+      navigate("/home"); 
+
     } catch (err) {
       setError(err.message);
     }
