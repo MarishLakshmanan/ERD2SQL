@@ -30,3 +30,6 @@ dbms/functions/.env
 dbms/functions/node_modules/
 dbms/functions/*.local
 dbms/notes.txt
+
+# Environment files from dbms-python
+dbms-python/.env
