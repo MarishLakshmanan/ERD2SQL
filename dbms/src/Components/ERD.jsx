@@ -274,37 +274,38 @@ const ERD = ({id,savedNodes,savedEdges}) => {
     }, [searchParams]);
     
   const handleSave = useCallback(() => {
-    const url = "http://127.0.0.1:5000/api/create-diagram";
-    const token = localStorage.getItem('jwt');
-    const data = {
-      id:(id) ? id : uuidv4(),
-      nodes: nodes,
-      edges: edges,
-    };
+    triggerAlert("success","ERD Diagram Saved")
+    // const url = "http://127.0.0.1:5000/api/create-diagram";
+    // const token = localStorage.getItem('jwt');
+    // const data = {
+    //   id:(id) ? id : uuidv4(),
+    //   nodes: nodes,
+    //   edges: edges,
+    // };
 
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      },
-      body: JSON.stringify(data),
-    };
-    console.log(data);
-    fetch(url, options)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((responseData) => {
-        console.log("Success:", responseData);
-        triggerAlert("success","ERD Diagram Saved")
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+    // const options = {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     "Authorization": `Bearer ${token}`
+    //   },
+    //   body: JSON.stringify(data),
+    // };
+    // console.log(data);
+    // fetch(url, options)
+    //   .then((response) => {
+    //     if (!response.ok) {
+    //       throw new Error(`HTTP error! status: ${response.status}`);
+    //     }
+    //     return response.json();
+    //   })
+    //   .then((responseData) => {
+    //     console.log("Success:", responseData);
+    //     triggerAlert("success","ERD Diagram Saved")
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error:", error);
+    //   });
   });
 
   const handleDownload = useCallback(() => {
