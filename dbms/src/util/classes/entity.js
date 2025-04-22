@@ -14,7 +14,7 @@ class EntityClass {
   id;
   name;
   attrs = [];
-  identifyingEntity;
+  identifyingEntities = [];
   foreignKeys = [];
   weak = false;
 
