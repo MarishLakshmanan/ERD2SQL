@@ -1,7 +1,9 @@
 import { Handle, Position, useReactFlow } from "@xyflow/react";
 import {
   Box,
+  Checkbox,
   FormControl,
+  FormControlLabel,
   InputLabel,
   MenuItem,
   Select,
@@ -13,13 +15,15 @@ const handleStyle = { left: 10 };
 
 function Relation({ id, data }) {
   const { updateNode } = useReactFlow();
-  const [type, setType] = useState(data.type || "Normal");
-  const types = ["Normal", "Weak"];
+  const [type, setType] = useState(data?.weak || false);
+  // const types = ["Normal", "Weak"];
 
   const handleChange = (event) => {
-    setType(event.target.value);
+    console.log(event.target.checked);
+    
+    setType(event.target.checked);
     updateNode(id, (node) => {
-      node.data.type = event.target.value;
+      node.data.weak = event.target.checked;
       return node;
     });
   };
@@ -27,7 +31,7 @@ function Relation({ id, data }) {
   return (
     <Box
       className={` bg-white rotate-45 ${
-        type === "Normal" ? "border-1" : "border-4"
+        (type) ? "border-4" : "border-1"
       }  border-black shadow-xl  flex items-center aspect-square scale-[0.7]`}
     >
       <Handle
@@ -44,7 +48,7 @@ function Relation({ id, data }) {
       />
       <Box className="flex p-1 rotate-[-45deg] gap-4 items-center">
         <Typography variant="body1">{data.label}</Typography>
-        <FormControl
+        {/* <FormControl
           sx={{
             minWidth: 80,
             "& .css-w76bbz-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input":
@@ -72,7 +76,8 @@ function Relation({ id, data }) {
               );
             })}
           </Select>
-        </FormControl>
+        </FormControl> */}
+        <FormControlLabel checked={type} onChange={handleChange} control={<Checkbox />} label="Weak" />
       </Box>
       <Handle
         type="target"

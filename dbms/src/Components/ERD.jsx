@@ -67,7 +67,7 @@ const generateEdge = (source_id, target_id, sourceHandle, targetHandle) => {
 const generateNode = (id, data, type) => {
   const node = {
     id: id,
-    data: { label: data, type: "Normal" },
+    data: { label: data },
     type: type,
     position: { x: 0, y: 0 },
   };
@@ -76,17 +76,20 @@ const generateNode = (id, data, type) => {
 };
 
 function generateEntityObject(node) {
-  return new EntityClass(node.id, node.data.label, node.data.type);
+  return new EntityClass(node.id, node.data.label, node.data?.weak);
 }
 
 function generateRelationObject(node) {
-  return new RelationClass(node.id, node.data.label, node.data.type);
+  return new RelationClass(node.id, node.data.label, node.data?.weak);
 }
 function generateAttributeObject(node) {
+  
+  
   return new AttributeClass(
       node.id,
       node.data.label,
-      node.data.type
+      (node.data.type === "Primary-Key"),
+      node.data.dataType
   );
 }
 
@@ -199,6 +202,11 @@ const ERD = ({id,savedNodes,savedEdges}) => {
       if (node.type === "attribute")
         Attributes[node.id] = generateAttributeObject(node);
     });
+
+    // console.log(Entities);
+    // console.log(Relations);
+    // console.log(Attributes);
+    
 
     try {
       generateSQL(Entities, Attributes, Relations, edges);

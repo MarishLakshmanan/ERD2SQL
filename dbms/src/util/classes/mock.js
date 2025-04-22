@@ -4,7 +4,7 @@ const mock ={
             "id": "233f3d48-9198-41ce-9f42-4deb818043d3",
             "data": {
                 "label": "department",
-                "type":"Weak"
+                "weak":true
             },
             "type": "entity",
             "position": {
@@ -22,7 +22,7 @@ const mock ={
             "id": "517a3c46-b3a9-4f4f-a0cd-529dac07b5b3",
             "data": {
                 "label": "Manages",
-                "type":"Weak"
+                "weak":true
             },
             "type": "relation",
             "position": {
@@ -91,7 +91,8 @@ const mock ={
         {
             "id": "869b4a2b-2e75-40ef-b154-148a20fa2457",
             "data": {
-                "label": "Since"
+                "label": "Since",
+                "dataType":"NCHAR"
             },
             "type": "attribute",
             "position": {
