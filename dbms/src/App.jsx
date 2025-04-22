@@ -1,3 +1,4 @@
+
 import { Box, ThemeProvider } from "@mui/material";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
@@ -7,7 +8,7 @@ import Register from "./pages/Register";
 import { theme } from "./theme";
 import Home from "./pages/Home";
 
-function App() {
+export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <Box className="w-full h-screen ">
@@ -33,4 +34,4 @@ const EditorRoute = () => {
   return token ? <ERD /> : <Navigate to="/" />;
 };
 
-export default App;
+// export default App;
