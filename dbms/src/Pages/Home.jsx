@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../firebase-config";
-import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
+// import { auth } from "../firebase-config";
+// import { getFirestore, collection, query, where, getDocs, connectFirestoreEmulator } from "firebase/firestore";
 
 export default function Home() {
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const [userEmail, setUserEmail] = useState("");
-  const db = getFirestore();
+  // const db = getFirestore();
+  // connectFirestoreEmulator(db, "127.0.0.1", 8080)
 
   useEffect(() => {
     const user = localStorage.getItem("uid")
@@ -19,7 +20,10 @@ export default function Home() {
     fetchProjects(user);
   }, []);
 
-  const fetchProjects = async (uid) => {
+  const fetchProjects = async (uid) => { 
+    // API endpoint created for retrieval. The code does not make it clear what projects is intended for. 
+    // Look at the endpoint and use the data from it to reshape whatever this abomination of code is meant to do without Firestore
+    // Good luck!!
     const q = query(collection(db, "projects"), where("userId", "==", uid));
     const snapshot = await getDocs(q);
     const data = snapshot.docs.map((doc, index) => ({
