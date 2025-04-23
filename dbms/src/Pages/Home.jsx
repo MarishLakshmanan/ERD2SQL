@@ -23,8 +23,8 @@ export default function Home() {
   }, []);
 
   const fetchProjects = async (uid) => {
-    const user = JSON.parse(localStorage.getItem("user"))
-    const url = `http://127.0.0.1:5000/api/data?email=${encodeURIComponent(user.email)}`;
+    const user = localStorage.getItem("uid")
+    const url = `http://127.0.0.1:5000/api/data?email=${encodeURIComponent(user)}`;
     const token = localStorage.getItem('jwt');
 
     const res = await fetch(url, {
