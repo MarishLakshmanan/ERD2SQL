@@ -1,4 +1,4 @@
-import {Box, Button, Card, IconButton, Typography} from "@mui/material";
+import {Box, Button, Card, IconButton, TextField, Typography} from "@mui/material";
 import {addEdge, applyEdgeChanges, applyNodeChanges, Background, Controls, ReactFlow,} from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import React, {useCallback, useState} from "react";
@@ -121,12 +121,12 @@ function generateEdgeObject(edge){
   return new EdgeClass(edge.source,edge.target,edge.sourceHandle,edge.targetHandle,edge.data.source,edge.data.target,many,mandatory)
 }
 
-const ERD = ({id,savedNodes,savedEdges}) => {
+const ERD = ({id,savedNodes,savedEdges,savedName}) => {
   // const initialEdges = [];
   // const initialNodes = [];
 
-  const [nodes, setNodes] = useState((savedNodes)?savedNodes : initialNodes);
-  const [edges, setEdges] = useState((savedEdges)?savedEdges: initialEdges);
+  const [nodes, setNodes] = useState((savedNodes)?savedNodes : []);
+  const [edges, setEdges] = useState((savedEdges)?savedEdges: []);
   const [modal, setModal] = useState(false);
   const [label, setLabel] = useState("");
   const [cb, setCallback] = useState();
@@ -135,6 +135,7 @@ const ERD = ({id,savedNodes,savedEdges}) => {
   const [severity, setSeverity] = useState("");
   const [sql,setSQL] = useState("")
   const [sqlBox,setSQLBox] = useState(false)
+  const [name,setName] = useState((savedName)?savedName:"")
 
   const addNodes = useCallback((id, label, type) => {
     const node = generateNode(id, label, type);
@@ -209,14 +210,14 @@ const ERD = ({id,savedNodes,savedEdges}) => {
 
   const navigate = useNavigate();
   const handleExit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    const res = await fetch("http://localhost:5000/logout", {
-      method: "POST",
-      body: formData,
-      credentials: "include",
-    });
-    navigate("/");
+    // e.preventDefault();
+    // const formData = new FormData();
+    // const res = await fetch("http://localhost:5000/logout", {
+    //   method: "POST",
+    //   body: formData,
+    //   credentials: "include",
+    // });
+    navigate("/home");
   };
 
   const handleGenerate = useCallback(() => {
@@ -286,13 +287,19 @@ const ERD = ({id,savedNodes,savedEdges}) => {
     }, [searchParams]);
     
   const handleSave = useCallback(() => {
-    triggerAlert("success","ERD Diagram Saved")
+    // triggerAlert("success","ERD Diagram Saved")
+    if(name===""){
+      triggerAlert("warning","You need to enter a name")
+      return
+    }
     const url = "http://127.0.0.1:5000/api/create-diagram";
     const token = localStorage.getItem('jwt');
     const data = {
       id:(id) ? id : uuidv4(),
       nodes: nodes,
       edges: edges,
+      name: name,
+      date: Date.now()
     };
 
     const options = {
@@ -316,17 +323,21 @@ const ERD = ({id,savedNodes,savedEdges}) => {
         triggerAlert("success","ERD Diagram Saved")
       })
       .catch((error) => {
-        console.error("Error:", error);
+        triggerAlert("error",error)
       });
   });
 
   const handleDownload = useCallback(() => {
+    if(name == ""){
+      triggerAlert("warning",'Enter a name')
+      return
+    }
     const blob = new Blob([sql], { type: 'text/sql' });
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'database.sql'; 
+    a.download = `${name}.sql` 
     a.click();
 
     URL.revokeObjectURL(url);
@@ -334,6 +345,8 @@ const ERD = ({id,savedNodes,savedEdges}) => {
   return (
     <Box className="w-full relative h-screen grid grid-cols-[350px_1fr] bg-brand-light">
       <Box className="border flex flex-col justify-center items-stretch gap-2 p-2">
+      <TextField value={name} onChange={(e)=>{setName(e.target.value);
+      }} id="outlined-basic" label="Enter a name" variant="outlined" />
         <Button
           variant="outlined"
           onClick={() => {
@@ -367,7 +380,7 @@ const ERD = ({id,savedNodes,savedEdges}) => {
         </Button>
         <Button onClick={handleExit} variant="contained">
           {" "}
-          Log Out{" "}
+          Exit{" "}
         </Button>
       </Box>
       <Box className="border w-full h-full relative">

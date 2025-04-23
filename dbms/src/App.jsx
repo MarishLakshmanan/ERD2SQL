@@ -1,6 +1,6 @@
 
 import { Box, ThemeProvider } from "@mui/material";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import "./App.css";
 import ERD from "./Components/ERD";
 import Login from "./pages/Login";
@@ -18,9 +18,8 @@ export default function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/home" element={<Home />} />
             <Route path="/editor" element={<EditorRoute />} />
-            <Route path="/erd" element={<ERD />} />
+            {/* <Route path="/erd" element={<ERD />} /> */}
             <Route path="*" element={<Navigate to="/" />} />
-        
           </Routes>
         {/* </BrowserRouter> */}
       </Box>
@@ -32,7 +31,14 @@ export default function App() {
 // Protected Route Logic: only show ERD if token exists
 const EditorRoute = () => {
   const token = localStorage.getItem("jwt");
-  return token ? <ERD /> : <Navigate to="/" />;
+  const location = useLocation()
+  if(location.state?.edge){
+    return token ? <ERD savedEdges={location.state.edge} savedNodes={location.state.node} savedName={location.state.name} id={location.state.id} /> : <Navigate to="/" />;
+  }else{
+    return token ? <ERD  /> : <Navigate to="/" />;
+  }
+  
+  
 };
 
 // export default App;

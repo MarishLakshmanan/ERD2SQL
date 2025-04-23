@@ -13,7 +13,7 @@ const Register = () => {
     formData.append("email", email);
     formData.append("password", password);
 
-    const res = await fetch("http://localhost:5000/register", {
+    const res = await fetch("http://127.0.0.1:5000/register", {
       method: "POST",
       body: formData,
     });

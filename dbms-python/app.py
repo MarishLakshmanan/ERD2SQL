@@ -6,6 +6,8 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from werkzeug.security import generate_password_hash, check_password_hash
 import oracledb
 from flask_cors import CORS
+import json
+
 
 token = ""
 
@@ -88,27 +90,49 @@ def dashboard():
 # DOESNT WORK IF YOU HAVE DIFFERENT FRONTEND AND BACKEND
 # Since we are generating JWT when logging in the user, that is used to check if user is logged in
 @app.route('/api/data')
-@login_required
-def get_oracle_data():
+# @login_required
+def get_diagrams():
+    # 1. Get Authorization header
+    auth = request.headers.get('Authorization', '')
+    if not auth.startswith('Bearer '):
+        return jsonify({"error": "forbidden"}), 401
+
+    token = auth.split(' ')[1]
+
+    # 2. Decode JWT token
+    try:
+        decoded = jwt.decode(token, "SECRET_KEY", algorithms=['HS256'])
+        user_email = decoded['sub']
+        print(f"Request by: {user_email}")
+    except jwt.ExpiredSignatureError:
+        return jsonify({"error": 'Token expired'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({"error": 'Invalid token'}), 401
+
+    # 3. Fetch diagrams from Oracle
     try:
         conn = oracledb.connect(user=ORACLE_USER, password=ORACLE_PASS, dsn=ORACLE_DSN)
         cursor = conn.cursor()
-        cursor.execute(f"""
-            SELECT * FROM JSON_DATA
-            WHERE USERNAME='{current_user.email}'
-        """)  # Replace with your actual query
+
+        cursor.execute("""
+            SELECT data FROM PROJECTS
+            WHERE username = :username
+        """, {"username": user_email})
+
         results = cursor.fetchall()
-        print(results)
-        
-        json_data = results[0][1]
-        json_data = json_data.read()
+
+        # You may have multiple results, though in your current insert logic it seems only one per user
+        diagrams = [json.loads(row[0].read()) if isinstance(row[0], oracledb.LOB) else row[0] for row in results]
+
         cursor.close()
         conn.close()
 
-        return jsonify(json_data)
+        # print(diagrams)
+        return jsonify({'diagrams': diagrams}), 200
+
     except Exception as e:
         print(e)
-        return jsonify({"error": str(e)}), 500
+        return jsonify({'error': str(e)}), 500
     
 @app.route('/api/retrieval')
 @login_required
@@ -137,14 +161,16 @@ def get_projects():
 # @login_required
 def create_diagram():
     data = request.data.decode("utf-8")
-    print(data)
+
 
     auth = request.headers.get('Authorization', '')
+    
     if not auth.startswith('Bearer '):
         return jsonify({"error": "forbidden"}), 401
     token = auth.split(' ')[1]
     
     try:
+        
         decoded = jwt.decode(token, "SECRET_KEY", algorithms=['HS256'])
         request.user = decoded['sub']
         print(request.user)
@@ -157,6 +183,8 @@ def create_diagram():
         return jsonify({'error': 'No data has been passed from client'}), 400
 
     try:
+        obj = json.loads(data)
+        print(obj["id"])
         conn = oracledb.connect(user=ORACLE_USER, password=ORACLE_PASS, dsn=ORACLE_DSN)
         print("Connection with oracle db established.")
         cursor = conn.cursor()
@@ -164,16 +192,20 @@ def create_diagram():
         try:
             print("Checking for existence of requesting user. If not in table, will create new row with pertinent data and association.")
             cursor.execute("""
-                INSERT INTO JSON_DATA (username, data)
-                VALUES (:username, :data)
-            """, {"username": request.user, "data": data})
+                INSERT INTO PROJECTS (username, data, id)
+                VALUES (:username, :data, :id)
+            """, {"username": request.user, "data": data, "id":obj["id"]})
         except oracledb.IntegrityError:
-            cursor.execute("""
-                UPDATE JSON_DATA
-                SET data = :data
-                WHERE username = :username
-            """, {"username": request.user, "data": data})
             print("Data already exists under user. Updating existing info to match new request.")
+            obj = json.loads(data)
+            cursor.execute("""
+                UPDATE PROJECTS
+                SET data = :data
+                WHERE id = :id
+            """, {"id": obj["id"], "data": data})
+        except Exception as e:
+            print(e)
+            
         conn.commit()
         print("Effects committed.")
         cursor.close()
@@ -183,6 +215,7 @@ def create_diagram():
         return jsonify({'message': 'Data added successfully'}), 201
 
     except Exception as e:
+        print("This is an error")
         print(e)
         return jsonify({'error': str(e)}), 500
     
