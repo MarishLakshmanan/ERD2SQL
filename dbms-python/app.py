@@ -10,7 +10,7 @@ from flask_cors import CORS
 token = ""
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
 app.secret_key = 'supersecretkey'
 
 # Local user database for authentication (SQLite)
@@ -55,10 +55,10 @@ def login():
                 'sub': email,
                 'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=24)
             }, "SECRET_KEY", algorithm='HS256')
-            return redirect(f'http://localhost:5173/?token={token}')
+            return jsonify({"token": token})
         # +f"?token={token}"
         flash("Invalid credentials")
-    return render_template('login.html')
+    return render_template('login.html') # Condition never reached
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

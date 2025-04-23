@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { useNavigate} from "react-router-dom";
-import { Link } from "react-router-dom";
-
+import { useNavigate, Link } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -21,11 +19,10 @@ const Login = () => {
       credentials: "include",
     });
 
-    if (window.location.search.includes("token=")) {
-      const token = new URLSearchParams(window.location.search).get("token");
-      localStorage.setItem("jwt", token);
-      navigate("/home");
-    }
+    const data = await res.json();
+    const token = data.token;
+    localStorage.setItem("jwt", token);
+    navigate("/home");
   };
 
   return (
