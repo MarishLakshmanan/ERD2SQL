@@ -10,13 +10,13 @@ export default function Home() {
   const db = getFirestore();
 
   useEffect(() => {
-    const user = auth.currentUser;
+    const user = localStorage.getItem("uid")
     if (!user) {
       navigate("/");
       return;
     }
-    setUserEmail(user.email);
-    fetchProjects(user.uid);
+    setUserEmail(user);
+    fetchProjects(user);
   }, []);
 
   const fetchProjects = async (uid) => {

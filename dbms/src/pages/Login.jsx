@@ -22,6 +22,7 @@ const Login = () => {
     const data = await res.json();
     const token = data.token;
     localStorage.setItem("jwt", token);
+    localStorage.setItem("uid", email);
     navigate("/home");
   };
 

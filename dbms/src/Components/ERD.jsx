@@ -20,7 +20,7 @@ import CloseIcon from '@mui/icons-material/Close';
 
 // Passage of token from Flask to Node to Oracle
 import { useEffect } from 'react';
-import { redirect, useSearchParams } from 'react-router-dom';
+import { redirect, useSearchParams, useNavigate } from 'react-router-dom';
 import EdgeClass from "../util/classes/edge.js";
 
 
@@ -207,6 +207,18 @@ const ERD = ({id,savedNodes,savedEdges}) => {
     addNodes(id, name, "attribute");
   });
 
+  const navigate = useNavigate();
+  const handleExit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    const res = await fetch("http://localhost:5000/logout", {
+      method: "POST",
+      body: formData,
+      credentials: "include",
+    });
+    navigate("/");
+  };
+
   const handleGenerate = useCallback(() => {
     console.log(nodes.length, edges.length);
 
@@ -353,7 +365,7 @@ const ERD = ({id,savedNodes,savedEdges}) => {
           {" "}
           Generate{" "}
         </Button>
-        <Button onClick={() => window.location.href = 'http://localhost:5000/logout'} variant="contained">
+        <Button onClick={handleExit} variant="contained">
           {" "}
           Log Out{" "}
         </Button>

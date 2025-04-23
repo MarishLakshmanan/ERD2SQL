@@ -74,11 +74,11 @@ def register():
         return f"User created: {email}"
     return render_template('register.html')
 
-@app.route('/logout')
+@app.route('/logout', methods=['GET', 'POST'])
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('login'))
+    return "Logout successful."
 
 @app.route('/dashboard')
 @login_required
