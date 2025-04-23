@@ -85,6 +85,8 @@ def logout():
 def dashboard():
     return render_template('dashboard.html', email=current_user.email)
 
+# DOESNT WORK IF YOU HAVE DIFFERENT FRONTEND AND BACKEND
+# Since we are generating JWT when logging in the user, that is used to check if user is logged in
 @app.route('/api/data')
 @login_required
 def get_oracle_data():
