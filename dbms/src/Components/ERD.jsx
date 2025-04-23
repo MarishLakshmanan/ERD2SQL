@@ -342,6 +342,25 @@ const ERD = ({id,savedNodes,savedEdges,savedName}) => {
 
     URL.revokeObjectURL(url);
   })
+
+  const handleJSON = useCallback(() => {
+    if(name == ""){
+      triggerAlert("warning",'Enter a name')
+      return
+    }
+    let data = {node:nodes,edge:edges}
+    data  = JSON.stringify(data);
+    
+    const blob = new Blob([data], { type: 'text/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${name}.json` 
+    a.click();
+
+    URL.revokeObjectURL(url);
+  })
   return (
     <Box className="w-full relative h-screen grid grid-cols-[350px_1fr] bg-brand-light">
       <Box className="border flex flex-col justify-center items-stretch gap-2 p-2">
@@ -406,6 +425,18 @@ const ERD = ({id,savedNodes,savedEdges,savedName}) => {
           <Typography variant="body1" sx={{ color: "white" }}>
             {" "}
             Save{" "}
+          </Typography>
+        </Button>
+        <Button
+          sx={{ position: "absolute" }}
+          className="top-[10px] right-[150px] z-100"
+          onClick={handleJSON}
+          variant="contained"
+          endIcon={<SaveIcon />}
+        >
+          <Typography variant="body1" sx={{ color: "white" }}>
+            {" "}
+            Save JSON{" "}
           </Typography>
         </Button>
       </Box>
