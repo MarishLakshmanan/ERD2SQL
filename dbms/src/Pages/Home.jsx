@@ -56,10 +56,11 @@ export default function Home() {
       </div>
 
       {/* Top Actions */}
-      <div className="w-full max-w-6xl grid grid-cols-2 gap-6 mb-10">
+      <div className="w-full max-w-6xl grid grid-cols-3 gap-6 mb-10">
         {[
           { label: "Create New", action: () => navigate("/editor") },
           { label: "Import from", action: () => alert("Coming soon...") },
+          { label: "Sign Out", action: () => navigate("/") },
         ].map(({ label, action }) => (
           <div
             key={label}

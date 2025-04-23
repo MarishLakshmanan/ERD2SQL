@@ -13,6 +13,7 @@ import {mock} from "../util/classes/mock";
 import EntityClass from "../util/classes/entity";
 import RelationClass from "../util/classes/relation";
 import AttributeClass from "../util/classes/attribute";
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import SaveIcon from "@mui/icons-material/Save";
 import generateSQL from "../util/converter.js";
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
@@ -397,10 +398,6 @@ const ERD = ({id,savedNodes,savedEdges,savedName}) => {
           {" "}
           Generate{" "}
         </Button>
-        <Button onClick={handleExit} variant="contained">
-          {" "}
-          Exit{" "}
-        </Button>
       </Box>
       <Box className="border w-full h-full relative">
         <ReactFlow
@@ -415,9 +412,21 @@ const ERD = ({id,savedNodes,savedEdges,savedName}) => {
           <Background bgColor="#F9FFE9" />
           <Controls />
         </ReactFlow>
-        <Button
+        <Button 
           sx={{ position: "absolute" }}
           className="top-[10px] right-[10px] z-100"
+          onClick={handleExit} 
+          variant="contained"
+          endIcon={<ExitToAppIcon />}
+        >
+          <Typography variant="body1" sx={{ color: "white" }}>
+            {" "}
+            Go Back{" "}
+          </Typography>
+        </Button>
+        <Button
+          sx={{ position: "absolute" }}
+          className="top-[10px] right-[150px] z-100"
           onClick={handleSave}
           variant="contained"
           endIcon={<SaveIcon />}
@@ -429,7 +438,7 @@ const ERD = ({id,savedNodes,savedEdges,savedName}) => {
         </Button>
         <Button
           sx={{ position: "absolute" }}
-          className="top-[10px] right-[150px] z-100"
+          className="top-[10px] right-[257px] z-100"
           onClick={handleJSON}
           variant="contained"
           endIcon={<SaveIcon />}
