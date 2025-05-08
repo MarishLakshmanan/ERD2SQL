@@ -120,8 +120,8 @@ For the purposes of this application, only the contents of `dbms-python` are rel
 Follow the steps below to run your own instance of the app locally.
 
 1. Clone/fork/download the repository and navigate to the root directory.
-2. Navigate to `dbms-python` in your CLI and run `chmod +x run.sh`
-3. Enter `./run.sh` into your command line and navigate to the indicated URL to run the application.
+2. Navigate to `dbms-python` in your CLI and run `flask run`
+3. Navigate to `dbms` and run `vite start dev` and follow the link that the command outputs. This requires node.js to be installed and the dependencies to be isntalled with `npm install`.
 
 ## Summary of Existing Endpoints
 ### Authentication Not Required
